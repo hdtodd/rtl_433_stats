@@ -41,7 +41,7 @@ The program(s) read the JSON log file created by rtl_433 (advise to stop rtl_433
 6.  Note that issuing the simple command `snr` to the C-based program gets you the (brief) help message with command-line options.
 
 ## Dependencies
-This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quote strings; that modification is noted in the mjson.c file included in this distribution.
+This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
 ## Author
 David Todd, hdtodd@gmail.com, 2022.05
