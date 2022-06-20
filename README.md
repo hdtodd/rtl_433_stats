@@ -33,12 +33,19 @@ The program(s) read the JSON log file created by rtl_433 (advise to stop rtl_433
 1. Download the distribution from Github.  
 2. Connect to the download directory.
 3. `make`
-4. `make install` .  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere.
+4. `make install` .  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory.
 5. Assuming that `~/bin/` is in your path, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, 
    - `snr -f xaa.json`
    or
    - `SNR.py xaa.json`
-6.  Note that issuing the simple command `snr` gets you the (brief) help message with command-line options.
+6.  Note that issuing the simple command `snr` to the C-based program gets you the (brief) help message with command-line options.
+
+## Dependencies
+This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quote strings; that modification is noted in the mjson.c file included in this distribution.
+
+## Author
+David Todd, hdtodd@gmail.com, 2022.05
+
 
 
 
