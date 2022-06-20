@@ -2,7 +2,7 @@
 Catalog and analyze signals from devices recorded in rtl_433 JSON logs
 
 ## Function
-rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices in your local area.  The snr program(s) process rtl_433 JSON log files to catalog all devices recorded in that log and summarize the statistics about their signal-to-noise ratios.  Sample output looks like this:
+rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices in your local area.  The snr program processes rtl_433 JSON log files to read the recorded packet information, catalog all devices recorded in that log, and summarize the statistics about their signal-to-noise ratios.  Sample output looks like this:
 ```
 Processed 7045 de-duplicated records
 Dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
