@@ -33,11 +33,11 @@ The program(s) read the JSON log file created by rtl_433 (advise to stop rtl_433
 1. Download the distribution from Github.  
 2. Connect to the download directory.
 3. `make`
-4. `make install`.  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory.
-5. Assuming that `~/bin/` is in your path, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, 
+4. `make install`.  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory rather than install.
+5. Assuming that `~/bin/` is in your path or that you execute from the download directory, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, 
    - `snr -f xaa.json`
    or
-   - `SNR.py xaa.json`
+   - `SNR.py xaa.json` (again, noting that Python 3.10.3+ is required).
 6.  Note that issuing the simple command `snr` to the C-based program gets you the (brief) help message with command-line options.
 
 ## Dependencies
