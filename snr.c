@@ -37,7 +37,7 @@ const struct json_attr_t json_rtl[] = {
 
 // Filled in by cli
 time_t dFirst, dLast;
-char inFileName[40];
+char inFileName[60];
 int fnLen = 39;
 
 void node_print(NPTR p) {
@@ -59,7 +59,7 @@ time_t latestDTS   = (time_t) 0x00000000;
 char ft[80], lt[80];
 struct tm ts;
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     int option;
     unsigned int lc = 0, rc=0;
@@ -130,5 +130,6 @@ void main(int argc, char *argv[])
       perror(path);
       exit(EXIT_FAILURE);
     };
-
+    
+    exit(EXIT_SUCCESS);
 }

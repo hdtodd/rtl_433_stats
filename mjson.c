@@ -766,6 +766,9 @@ int json_read_array(const char *cp, const struct json_array_t *arr,
 	    else
 		++cp;
 	    break;
+#else
+	case t_time:
+	  break;
 #endif /* TIME_ENABLE */
 	case t_real:
 	    arr->arr.reals.store[offset] = strtod(cp, &ep);

@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 extern time_t dFirst, dLast;
-extern char inFileName[40];
+extern char inFileName[60];
 
 int processCmdLine(int argc, char* argv[]) {
   int c, i, j;
@@ -57,14 +57,14 @@ int processCmdLine(int argc, char* argv[]) {
 
     case 'f':
       if (strlen(optarg)<(sizeof(inFileName)-1)) {
-	  strcpy(inFileName, optarg);
-	  if (access(inFileName,R_OK) !=0) {
-	    printf("Specified input file '%s' not found or not readable\n", inFileName);
-	    return(-1);
-	  }
-      } else {
-	  printf("Input data file name '%s' exceeds allocated storage\n");
+	strcpy(inFileName, optarg);
+	if (access(inFileName,R_OK) !=0) {
+	  printf("Specified input file '%s' not found or not readable\n", inFileName);
 	  return(-1);
+	}
+      } else {
+	printf("Input data file name '%s' exceeds allocated storage\n", inFileName);
+	return(-1);
 	};
       break;
       

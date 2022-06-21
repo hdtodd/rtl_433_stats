@@ -25,8 +25,7 @@ APTR attr_new(void) {
 #endif
   p = (APTR) malloc(sizeof(ATTR));
   if (p == NULL) {
-    fprintf(stderr, "Really?  Systems says we're out of memory\n",
-	   "  while allocating space for a new attribute node in 'tree'\n");
+    fprintf(stderr, "Out of memory while allocating space for a new attribute node in 'tree'\n");
     exit(EXIT_FAILURE);
   };
   p->count = 0;
@@ -45,8 +44,7 @@ NPTR node_new(char *key) {
 #endif
   p = (NPTR) malloc(sizeof(NODE));
   if (p == NULL) {
-    fprintf(stderr, "Really?  Systems says we're out of memory\n",
-	   "  while allocating space for a new binary tree  node in 'tree'\n");
+    fprintf(stderr, "Oout of memory allocating space for a new binary tree node in 'tree'\n");
     exit(EXIT_FAILURE);
   };
   p->key = (char *) malloc(strlen(key)+1);
@@ -87,6 +85,7 @@ NPTR node_find(NPTR root, char *key) {
       if (p->rptr == NULL) return (p->rptr = node_new(key));
       else p = p->rptr;
   };
+  return(NULL);
 };  
 
 // Not implemented as node_find does this
