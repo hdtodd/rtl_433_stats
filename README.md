@@ -40,6 +40,12 @@ The program(s) read the JSON log file created by rtl_433 (advise to stop rtl_433
    - `SNR.py xaa.json` (again, noting that Python 3.10.3+ is required).
 6.  Note that issuing the simple command `snr` to the C-based program gets you the (brief) help message with command-line options.
 
+After verifying that snr or SNR.py is functioning correctly with test data, you may want to configure your rtl_433 config file to record data from your own RTL_SDR dongle.  For example, add something like the following to your config file:
+```
+output json:/var/rtl_433/rtl_433.json
+```
+(and create and assign ownership to /var/rtl_433/ if necessary) and then restart rtl_433.
+
 ## Dependencies
 This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
