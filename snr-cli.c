@@ -44,7 +44,7 @@ int processCmdLine(int argc, char* argv[]) {
 
   // Set default values for options, then check for command-line values
   dFirst     = 0;                 // Process all dates
-  dLast      = 0xFFFFFFFF;        // Process all dates
+  dLast      = 0x7FFFFFFF;        // Process all dates; watch for neg 64-bit time
   
   //  If no options provided, simulate "-h"
   c = getopt_long(argc, argv, short_opt, (const struct option *)long_opt, NULL);
