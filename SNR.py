@@ -48,8 +48,9 @@ with open(fn,"rt") as log:
             quit()
         eTime = time.mktime(time.strptime(y["time"], "%Y-%m-%d %H:%M:%S"))
 
-        # de-dup data by checking time+model as unique key
-        dev = y["model"]+" "+str(y["id"])
+        #  Statement below makes 'model'+'id' the key for cataloging and summarizing
+        #  Change the following statement to experiment with other keys
+        dev = y["model"]+" "+str(y["id"])  #use 'model'+'id' as unique key
         if eTime>lastDevice["time"]+2.0 or dev != lastDevice["dev"]:
         
             # record the basic stats about this entry: increment record count, record time

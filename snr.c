@@ -88,7 +88,9 @@ int main(int argc, char *argv[])
       tm.tm_isdst = 1;
       timestamp = mktime(&tm);
       if (timestamp<dFirst || timestamp>dLast) continue;  // ignore recs not in date-time range
-      strcat(model, " "); strcat(model, id);
+      // Statement below makes 'model'+'id' the key for cataloging and summarizing
+      // Change the following statement to experiment with other keys
+      strcat(model, " "); strcat(model, id);   // 'model'+'id' is the key for lookups
       if ( (strcmp(model, lastmodel) != 0) ||
 	   (timestamp > lasttime+2) ) {
 #ifdef DEBUG
