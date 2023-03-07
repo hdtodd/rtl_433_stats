@@ -34,8 +34,7 @@ The key string for cataloging a device is the concatenation of the JSON 'model' 
 ## Installation
 1. Download the distribution from Github.  
 2. Connect to the download directory.
-3. `make`
-4. `make install`.  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory rather than install.
+3. For the C version, connect to the `c-version` directory and `make` and then `make install`.  Note that this installs the *snr* executable, the *SNR.py* main program, and the *stats_class.py* class definitions into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory rather than install.
 5. Assuming that `~/bin/` is in your path or that you execute from the download directory, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, 
    - `snr -f xaa.json`
    or
@@ -51,8 +50,17 @@ output json:/var/rtl_433/rtl_433.json
 ## Dependencies
 This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
+## Known Issues
+Running under Python 3.10.3, the Python code fails with a JSON load error after about 628K records have been processed.  The C code does not have that issue.  For large JSON log files, you may need to use `snr` rather than `SNR.py`, or use `split` to separate the large JSON log file into more manageable pieces.
+
+## Additional Statistics
+The Python code `SNR-ITGT` processes the JSON log files to provide SNR statisics _and_ statistics about the Inter-Transmission Gap Times (ITGT) -- the time-gap between succesive transmissions from an individual device.  That information might be helpful to characterize devices in your neighborhood.  However, when used to process lengthy log files with many spurious devices -- trucks passing through the neighborhood, occasional security alarms, occasional window-shade operations, etc -- the resulting report will be cluttered with many devices that have only a few transmission for which the mean and standard deviation of the ITGT is meaningless.  The program is included because in some cases it may provide useful information for nearby sensor devices that broadcast routinely and reliably.
+
+Invoke it with `python3 SNR-ITGT.py <JSON file name>`.  The report has the same format as `snr`.
+
 ## Author
-David Todd, hdtodd@gmail.com, 2022.05
+David Todd, hdtodd@gmail.com, 2022.05.  Updated 2023.03.
+
 
 
 

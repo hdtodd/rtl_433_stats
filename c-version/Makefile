@@ -31,8 +31,8 @@ clean:
 install:
 	mkdir -p ${BIN}
 	mv snr ${BIN}
-	cp SNR.py ${BIN}
-	cp class_stats.py ${BIN}
+	cp ../py-version/SNR.py ${BIN}
+	cp ../py-version/class_stats.py ${BIN}
 
 uninstall:
 	rm ${BIN}snr

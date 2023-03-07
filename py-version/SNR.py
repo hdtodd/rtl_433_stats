@@ -50,7 +50,9 @@ with open(fn,"rt") as log:
 
         #  Statement below makes 'model'+'id' the key for cataloging and summarizing
         #  Change the following statement to experiment with other keys
-        dev = y["model"]+" "+str(y["id"])  #use 'model'+'id' as unique key
+        dev = y["model"]
+        if "id" in y:
+            dev += " "+str(y["id"])  #use 'model'+'id' as unique key
         if eTime>lastDevice["time"]+2.0 or dev != lastDevice["dev"]:
         
             # record the basic stats about this entry: increment record count, record time
@@ -63,10 +65,12 @@ with open(fn,"rt") as log:
             # Now process this record
             snr  = float(y['snr'])
             # EDIT HERE TO Ignore the first record for a device ... autogain may distort SNR
-            if not dev in devices:
-                devices[dev] = stats.stats()
-#            else:
-            devices[dev].append(snr)
+            # If device already seen, append this reading to the stream
+            #   else create a new dictionary entry with this as its initial data
+            if dev in devices:
+                devices[dev].append(snr)
+            else:
+                devices[dev] = stats.stats(snr)
 
 print("\nProcessed", RC, "de-duplicated records\nDated from",
       time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(firstTime)), "to",
