@@ -6,6 +6,7 @@ import sys
 import json
 import time
 import class_stats as stats
+from json.decoder import JSONDecodeError
 
 # Structure of summary node is
 #   {"device",(record-count, running-std^2, running-sum, running-min, running-max)}
@@ -25,9 +26,7 @@ else:
 firstTime = float('inf')
 lastTime  = 0
 RC = 0
-lastDevice = {
-    "time":0.0,
-    "dev":""}
+lastDevice = {"time":0.0, "dev":""}
 
 devices = None
 devices = {}
@@ -41,11 +40,21 @@ with open(fn,"rt") as log:
         # unpack the record in JSON
         try:
             y = json.loads(line)
-        except:
-            print("JSON load failed at line ", lc)
-            print("Line contents: ")
-            print(line)
+        except JSONDecodeError as e:
+            print("JSON decode error at file line ", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            print("Or are there null characters in your input file?")
+            print("Try sed 's/\\x0//g' oldfile > newfile to remove them")
             quit()
+        except TypeError as e:
+            print("JSON type error in file line", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            quit()
+            
         eTime = time.mktime(time.strptime(y["time"], "%Y-%m-%d %H:%M:%S"))
 
         #  Statement below makes 'model'+'id' the key for cataloging and summarizing

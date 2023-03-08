@@ -2,7 +2,12 @@
 Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 
 ## Function
-rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices in your local area.  The snr program processes rtl_433 JSON log files to read the recorded packet information, catalog all devices recorded in that log, and summarize the statistics about their signal-to-noise ratios.  Sample output looks like this:
+rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices in your neighborhood.  The snr program processes rtl_433 JSON log files to:
+
+* read the recorded packet information,
+* count the packets and transmissions, ignoring a devices transmission's redundant packets (which might have been broadcast to increase reliability),
+* catalog all devices recorded in that log, and
+* summarize the statistics about their signal-to-noise ratios (SNR).  Sample output looks like this:
 ```
 Processed 7045 de-duplicated records
 Dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
@@ -53,7 +58,9 @@ output json:/var/rtl_433/rtl_433.json
 This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
 ## Known Issues
-Running under Python 3.10.3, the Python code fails with a JSON load error after about 628K records have been processed.  The C code does not have that issue.  For large JSON log files, you may need to use `snr` rather than `SNR.py`, or use `split` to separate the large JSON log file into more manageable pieces.
+The first packet from a device during a transmission interval (individually or as the first in a transmission packet) may have a distorted SNR because of a high auto-gain on the RTL_SDR.
+
+If the JSON input file has blocks of null characters (as might happen if rtl_433 is interrupted), a JSON data load error occurs, message issued, and processing is terminated.  Guidance is provided on how to remove null characters from the JSON log file.
 
 ## Additional Statistics
 The Python code `SNR-ITGT` processes the JSON log files to provide SNR statisics _and_ statistics about the Inter-Transmission Gap Times (ITGT) -- the time-gap between succesive transmissions from an individual device.  That information might be helpful to characterize devices in your neighborhood.  However, when used to process lengthy log files with many spurious devices -- trucks passing through the neighborhood, occasional security alarms, occasional window-shade operations, etc -- the resulting report will be cluttered with many devices that have only a few transmission for which the mean and standard deviation of the ITGT are meaningless.  The program is included because in some cases it may provide useful information for nearby sensor devices that broadcast routinely and reliably.
