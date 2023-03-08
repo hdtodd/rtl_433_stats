@@ -5,7 +5,7 @@ Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices in your neighborhood.  The snr program processes rtl_433 JSON log files to:
 
 * read the recorded packet information,
-* count the packets and transmissions, ignoring a devices transmission's redundant packets (which might have been broadcast to increase reliability),
+* count the packets and consolidate redundant packets into an individual transmission, ignoring redundant packets sent to increase reliability,
 * catalog all devices recorded in that log, and
 * summarize the statistics about their signal-to-noise ratios (SNR).  Sample output looks like this:
 ```
