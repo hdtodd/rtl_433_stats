@@ -9,18 +9,21 @@ rtl_snr ("snr") is a program for cataloging and characterizing ISM-band devices 
 * catalog all devices recorded in that log, and
 * summarize the statistics about their signal-to-noise ratios (SNR).  Sample output looks like this:
 ```
-Processed 7045 de-duplicated records
+Processed 20000 Packets as 7045 De-Duplicated Transmissions
 Dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
 
-Device                      #Recs  Mean SNR ± 𝜎    Min    Max
-Acurite-606TX 134             858    8.4 ±  2.1    5.5   20.0
-Acurite-609TXC 194           1446   19.2 ±  0.5   12.4   21.2
-Acurite-Tower 11524          2753   19.2 ±  0.5   13.2   20.8
-Hyundai-VDO 60b87768            1   11.0 ±  0.0   11.0   11.0
-LaCrosse-TX141THBv2 168       840    9.6 ±  1.1    6.0   19.2
-Markisol 0                     75   19.2 ±  0.9   12.3   20.2
-Prologue-TH 203               699   11.6 ±  1.3    7.2   19.5
-...
+Device                      #Pkts    #Xmits  Mean SNR ± 𝜎    Min    Max
+Acurite-01185M 0                4         4    9.6 ±  4.9    6.4   16.9
+Acurite-606TX 134             858       858    8.4 ±  2.1    5.5   20.0
+Acurite-609TXC 194           8006      1446   19.2 ±  0.5   12.4   21.2
+Acurite-Tower 11524          8203      2753   19.2 ±  0.5   13.2   20.8
+Hyundai-VDO 60b87768            1         1   11.0 ±  0.0   11.0   11.0
+Hyundai-VDO aeba4a98            1         1    7.2 ±  0.0    7.2    7.2
+LaCrosse-TX141Bv3 253         597       348    8.2 ±  1.1    5.7   11.5
+LaCrosse-TX141THBv2 168      1536       840    9.6 ±  1.1    6.0   19.2
+Markisol 0                     75        75   19.2 ±  0.9   12.3   20.2
+Markisol 256                   20        20   19.3 ±  0.4   18.5   20.2
+Prologue-TH 203               699       699   11.6 ±  1.3    7.2   19.5
 ```
 
 ## Details
@@ -58,7 +61,11 @@ output json:/var/rtl_433/rtl_433.json
 This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
 ## Known Issues
-The first packet from a device during a transmission interval (individually or as the first in a transmission packet) may have a distorted SNR because of a high auto-gain on the RTL_SDR.
+JSON log times are expected to be in the format "HH:MM:SS", to the nearest second with no fractional part.  Will be corrected to allow fractional seconds.  Fixed in the next release.
+
+C version does not yet provide per-device packet counts. Fixed in the next release.
+
+The first packet from a device during a transmission interval (individually or as the first in a transmission packet) may have a distorted SNR because of a high auto-gain on the RTL_SDR.  Some devics issue just one packet per transmission and others issue 3-6.  No fix anticipated.
 
 If the JSON input file has blocks of null characters (as might happen if rtl_433 is interrupted), a JSON data load error occurs, message issued, and processing is terminated.  Guidance is provided on how to remove null characters from the JSON log file.
 
