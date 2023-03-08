@@ -25,11 +25,11 @@ else:
 
 firstTime = float('inf')
 lastTime  = 0
-RC = 0
+DDTC = 0
 lastDevice = {"time":0.0, "dev":""}
 
-devices = None
 devices = {}
+pktcount = {}
 
 print("Processing ISM 433MHz messages from file", fn)
 
@@ -62,12 +62,17 @@ with open(fn,"rt") as log:
         dev = y["model"]
         if "id" in y:
             dev += " "+str(y["id"])  #use 'model'+'id' as unique key
+        if dev in pktcount:
+            pktcount[dev] += 1
+        else:
+            pktcount[dev] = 1
+
         if eTime>lastDevice["time"]+2.0 or dev != lastDevice["dev"]:
         
             # record the basic stats about this entry: increment record count, record time
             lastDevice["dev"]= dev
             lastDevice["time"] = eTime
-            RC += 1
+            DDTC += 1
             firstTime = eTime if (eTime<firstTime) else firstTime
             lastTime  = eTime if (eTime>lastTime)  else lastTime
 
@@ -81,12 +86,12 @@ with open(fn,"rt") as log:
             else:
                 devices[dev] = stats.stats(snr)
 
-print("\nProcessed", RC, "de-duplicated records\nDated from",
+print("\nProcessed", lc, "Packets as", DDTC, "De-Duplicated Transmissions\nDated from",
       time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(firstTime)), "to",
       time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(lastTime)) )
 print()
-print("{:<25} {:>7}  {:>8}  {:>5}  {:>5}".format("Device", "#Recs", "Mean SNR ± 𝜎", "Min", "Max"))
+print("{:<25} {:>7}   {:>7}  {:>5}  {:>5}  {:>5}".format("Device", "#Pkts", "#Xmits", "Mean SNR ± 𝜎", "Min", "Max"))
 
 for d in sorted(devices):
     (n,avg,std,min,max) = devices[d].get()
-    print("{:<25} {:>7} {:>6.1f} ±{:>5.1f}  {:>5.1f}  {:>5.1f}".format(d,n,avg,std,min,max))
+    print("{:<25} {:>7}   {:>7} {:>6.1f} ±{:>5.1f}  {:>5.1f}  {:>5.1f}".format(d,pktcount[d],n,avg,std,min,max))
