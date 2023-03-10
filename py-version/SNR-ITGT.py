@@ -11,6 +11,7 @@ import sys
 import json
 import time
 import class_stats as stats
+import datetime
 from json.decoder import JSONDecodeError
 
 # Structure of summary node is
@@ -18,6 +19,25 @@ from json.decoder import JSONDecodeError
 #   field labels are (DDTC,snr-sum,snr-min,snr-max)
 
 global devices
+
+def CnvTime(ts):
+    if ts.find("-") > 0:
+        try:
+            eTime = datetime.datetime.fromisoformat(y['time']).timestamp()
+        except ValueError as e:
+            err={}
+            print("datetime error in input line", lc, "converting time string: ", ts)
+            print("datetime  msg:", err.get("error", str(e)))
+            quit()
+    else:
+        try:
+            eTime = float(ts)
+        except ValueError as e:
+            err = {}
+            print("Datetime conversion failed on line", lc, "with datetime string", ts)
+            print("float() error msg:", err.get("error", str(e)))
+            quit()
+    return(eTime)
 
 # main program
 
@@ -65,7 +85,8 @@ with open(fn,"rt") as log:
             print("JSON error msg:", err.get("error", str(e)))
             quit()
 
-        eTime = time.mktime(time.strptime(y["time"], "%Y-%m-%d %H:%M:%S"))
+#        eTime = time.mktime(time.strptime(y["time"], "%Y-%m-%d %H:%M:%S"))
+        eTime = CnvTime(y["time"])
 
         #  Statement below makes 'model'+'id' the key for cataloging and summarizing
         #  Change the following statement to experiment with other keys
