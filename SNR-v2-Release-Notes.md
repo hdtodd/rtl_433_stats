@@ -11,9 +11,9 @@ A device "transmission" represents one observation but may contain 1 to 6 or mor
 While SNR v1 focused on just the Signal-to-Noise Ratio of the signals seen at the rtl\_433 RTL-SDR receiver, v2 of SNR summarizes additional characteristics of the received signals from each of the devices observed:
 
 *  Signal-to-Noise Ratio over all packets
-*  The gap (in seconds) between successive transmissions by each device over individual transmissions
-*  The frequency of the device's signal over all packets
-*  The number of packets in each transmission over individual transmissions.
+*  The gap (in seconds) between successive transmissions by each device
+*  The radio frequency of the device's signal over all packets
+*  The number of packets in each transmission
 
 For each of these characteristics, SNR analyzes the individual packets and the grouped transmissions for each of the devices and reports the:
 
