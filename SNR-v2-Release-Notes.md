@@ -77,8 +77,13 @@ V2 uses `argparse` to parse the command line and provide the appropriate help fo
 
 The `stats` class, used to compile statistics from the data stream, is now embedded in the SNR code file rather than imported from an external file.
 
+### Performance
+
+SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 618,091 De-Duplicated Transmissions into the 4-category report in 79.95 sec on a Raspberry Pi-4B whereas SNR v1 processed the same file into just the SNR report in 55.3 sec on the same system.  SNR v2 took 68.1 sec to generate just the SNR report on the same system and file.
+
+### Known issues
+
+Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\000//g' oldfile.json > newfile.json`).
+
 ## Author
 David Todd, hdtodd@gmail.com, 2023.03
-
-
-
