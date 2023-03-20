@@ -45,15 +45,19 @@ where
 
 v2 is available in Python3 only at this time.  
 
+### Log file time formats
+
+SNR now accepts integer and fractional seconds in both ISO and Epoch formats in the rtl\_433 JSON log file (removing the ISO integer-second format required in v1).
+
 ### Additional reporting
 
 v2 adds the following capabilities to the basic signal-to-noise (SNR) reporting of v1:
 
 *  ITGT: The Inter-Transmission Gap Time is the mean time between transmissions for each device
-*  Freq:  The mean frequency of the packets observed
+*  Freq:  The mean radio frequency of the packets observed
 *  PPT: The mean number of packets per transmission.
 
-Any or all of these statistics reporting categories can be disabled by command-line switches to simplify the report page.  If all are disabled, SNR simply reports the catalog of all devices seen.
+Any or all of these statistics reporting categories can be disabled by command-line switches to simplify the report page.  If all are disabled, SNR simply reports the catalog of all devices recorded in the log file.
 
 ### Modified identifier
 
