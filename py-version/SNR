@@ -205,8 +205,9 @@ with open(args.fn,"rt") as log:
             print("Line contents:\n", line)
             err = {}
             print("JSON error msg:", err.get("error", str(e)))
-            print("Or are there null characters in your input file?")
-            print("Try sed 's/\\x0//g' oldfile > newfile to remove them")
+            print("\nOr are there null characters in your input file?")
+            print("On Linux, try sed \"s/\\x0//g' oldfile.json > newfile.json\" to remove them")
+            print("On OSX/Posix, try \"tr -d '\\000' < oldfile.json > newfile.json\"")
             quit()
         except TypeError as e:
             print("JSON type error in file line", lc)
