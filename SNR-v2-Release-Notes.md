@@ -35,6 +35,8 @@ where
 *  `-f FN` is required (FN=file name)
 *  `-o [options]` lists reports you want *omitted* (SNR, ITGT, Freq, and/or PPT)
 *  `-x n`, n an integer, excludes from the device report any devices with less than "n" packets observed
+*  '-T' tells SNR to *include* TPMS (Tire Pressure Monitoring System transmissions) that are otherwise ignored
+*  '-v- is unimplemented (verbose)
 *  `-d` is unimplemented (debug).
 
 ## Changes from v1
