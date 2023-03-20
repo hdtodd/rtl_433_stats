@@ -85,11 +85,11 @@ The `stats` class, used to compile statistics from the data stream, is now embed
 
 ### Performance
 
-SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 618,091 De-Duplicated Transmissions into the 4-category report in 79.95 sec on a Raspberry Pi-4B whereas SNR v1 processed the same file into just the SNR report in 55.3 sec on the same system.  SNR v2 took 68.1 sec to generate just the SNR report on the same system and file.
+SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 618,091 De-Duplicated Transmissions into the 4-category report in 79.95 sec on a Raspberry Pi-4B whereas SNR v1 processed the same file into just the SNR report in 55.3 sec on the same system.  SNR v2 took 68.1 sec to generate just the SNR report on the same system and file.  On a 2018 3GHz Intel Mac Mini, the V2 SNR full report required 15 sec.
 
 ### Known issues
 
-Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\000//g' oldfile.json > newfile.json`).
+Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\x0//g' oldfile.json > newfile.json` on a Linux system; Mac's OSX Posix sed processes the null ("\x0") incorrectly.
 
 ## Author
 David Todd, hdtodd@gmail.com, 2023.03
