@@ -89,7 +89,7 @@ SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 
 
 ### Known issues
 
-Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\x0//g' oldfile.json > newfile.json` on a Linux system; Mac's OSX Posix sed processes the null ("\x0") incorrectly.
+Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\x0//g' oldfile.json > newfile.json` on a Linux system; or `tr -d '\000' < oldfile.json > newfile.json` on OSX/Posix systems)
 
 ## Author
 David Todd, hdtodd@gmail.com, 2023.03
