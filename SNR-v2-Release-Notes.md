@@ -6,9 +6,9 @@ rtl\_433 is a program to decode radio transmissions from devices on the Industri
 
 SNR is a Python3 program that analyzes the JSON log file from rtl\_433 to catalog the devices seen by rtl\_433 and characterize their radio transmissions.  It can be used to identify remote-sensing devices in your neighborhood and determine the reliability of individual devices as data sources by observing SNR, frequency variations, and reception reliability.
 
-A device "transmission" represents one observation but may contain 1 to 6 or more "packets", and transmissions may be initiated by the remote device at approximately 15-second, 30-second, 60-second, or other intervals.  These are simplex communication devices -- the remote device sends data with no indication from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet.  
+A device "transmission" represents one observation but may contain 1 to 6 or more "packets", and transmissions are frequently initiated by the remote device at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.
 
-While SNR v1 focused on just the Signal-to-Noise Ratio of the signals seen at the rtl\_433 RTL-SDR receciver, v2 of SNR summarizes additional characteristics of the received signals from each of the devices observed:
+While SNR v1 focused on just the Signal-to-Noise Ratio of the signals seen at the rtl\_433 RTL-SDR receiver, v2 of SNR summarizes additional characteristics of the received signals from each of the devices observed:
 
 *  Signal-to-Noise Ratio over all packets
 *  The gap (in seconds) between successive transmissions by each device over individual transmissions
