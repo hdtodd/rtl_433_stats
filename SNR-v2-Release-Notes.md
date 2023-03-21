@@ -67,7 +67,7 @@ A remote device may emit a set of packets for one transmission of data, to incre
 
 SNR ignores status-report and heartbeat packets.
 
-By default, SNR ignores transmissions from Tire Pressure Monitoring Systems ("TPMS") as these tend to be transient records of passing vehicular traffic.  An optional command-line switch enables inclusion of TPMS devices.
+By default, SNR ignores transmissions from Tire Pressure Monitoring Systems ("TPMS") as these tend to be transient records of passing vehicular traffic.  The optional command-line switch `-T` enables inclusion of TPMS devices.
 
 SNR ignores the frequency entries for devices with multiple frequencies.
 
