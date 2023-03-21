@@ -27,17 +27,15 @@ For each of these characteristics, SNR analyzes the individual packets and the g
 
 SNR requires Python3 and uses only standard Python libraries.
 
-`usage: SNR [-h] -f FN [-o {SNR,ITGT,Freq,PPT} [{SNR,ITGT,Freq,PPT} ...]] [-x NOISE] [-T] [-v] [-d]`
+`usage: SNR [-h] -f FN [-o {SNR,ITGT,Freq,PPT} [{SNR,ITGT,Freq,PPT} ...]] [-x NOISE] [-w WINDOW] [-T] [-v]`
 
-where
-
-*  `-h` provides expanded help
-*  `-f FN` is required (FN=file name)
+*  `-h`           provides extended help
+*  `-f FN`        is required (FN=file name)
 *  `-o [options]` lists reports you want *omitted* (SNR, ITGT, Freq, and/or PPT)
-*  `-x n`, n an integer, excludes from the device report any devices with less than "n" packets observed
-*  '-T' tells SNR to *include* TPMS (Tire Pressure Monitoring System) transmissions that are otherwise ignored
-*  '-v- is unimplemented (verbose)
-*  `-d` is unimplemented (debug).
+*  `-x n`         n an integer, excludes from the device report any devices with less than "n" packets observed
+*  `-w f`         f a floating number, is the mMax time in sec for a packet group to be considered as one transmission (default: 2.0)
+*  `-T`           tells SNR to *include* TPMS (Tire Pressure Monitoring System) transmissions that are otherwise ignored
+*  `-v`           show program's version number and exit
 
 ## Changes from v1
 
@@ -63,9 +61,11 @@ Any or all of these statistics reporting categories can be disabled by command-l
 
 The individual devices are now identified by a keyword string composed of 'model'/'channel'/'id' in rtl\_433's nomenclature, consistent with the format used in other programs.
 
-### Ignored transmissions and data
+### Packet grouping; ignored transmissions
 
-SNR ignores status-report packets.
+A remote device may emit a set of packets for one transmission of data, to increase reliability through redundancy.  By default, SNR allows a window of 2.0 sec for a group of packets to be considered to be one transmission, after which additional packets are considered to be a new transmission.  That window for packets to be grouped as a single transmission can be changed with the `-w` command-line switch.
+
+SNR ignores status-report and heartbeat packets.
 
 By default, SNR ignores transmissions from Tire Pressure Monitoring Systems ("TPMS") as these tend to be transient records of passing vehicular traffic.  An optional command-line switch enables inclusion of TPMS devices.
 
@@ -73,7 +73,7 @@ SNR ignores the frequency entries for devices with multiple frequencies.
 
 ### Corrections
 
-To group a set of packets into one transmission, SNR uses a "de-duplication" algorithm.  By default, packets observed from a device within a 2-second period are considered to be one transmission.  In v1, packets from another device could break one device's multi-packet transmission into what appeared to be multiple transmissions.  In v2, the packet times are monitored on a per-device basis so that the transmission count is now correct.
+To group a set of packets into one transmission, SNR uses a "de-duplication" algorithm.  By default, packets observed from a device within a 2-second period are considered to be one transmission.  In v1, packets from another device could break one device's multi-packet transmission into what appeared to be multiple transmissions.  In v2, the packet times are monitored on a per-device basis so that the transmission count is now correct, and the window can be changed from 2.0 seconds with the `-w` switch.
 
 ### Command-line processing
 
