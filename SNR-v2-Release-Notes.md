@@ -33,7 +33,7 @@ SNR requires Python3 and uses only standard Python libraries.
 *  `-f FN`        is required (FN=file name)
 *  `-o [options]` lists reports you want *omitted* (SNR, ITGT, Freq, and/or PPT)
 *  `-x n`         n an integer, excludes from the device report any devices with less than "n" packets observed
-*  `-w f`         f a floating number, is the mMax time in sec for a packet group to be considered as one transmission (default: 2.0)
+*  `-w f`         f a floating number, is the max time in sec for a packet group to be considered as one transmission (default: 2.0)
 *  `-T`           tells SNR to *include* TPMS (Tire Pressure Monitoring System) transmissions that are otherwise ignored
 *  `-v`           show program's version number and exit
 
