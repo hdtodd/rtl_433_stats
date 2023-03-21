@@ -1,7 +1,7 @@
-SNR.py: 
-	Analyze rtl_433 JSON logs to catalog the devices seen and
-	characterize their signal-to-noise ratio (SNR), packet/transmission
-	frequency, and radio frequency variations.
+rtl_433_stats: 
+	Analyze rtl_433 JSON logs to catalog the devices seen and to characterize
+	statistically their signal-to-noise ratio (SNR), times between
+	transmissions (ITGT),tradio frequency (Freq), and packets per transmission (PPT).
 
 Processing ISM 433MHz messages recorded by rtl_433 from file ../xaa.json
 Including SNR Stats
@@ -9,12 +9,12 @@ Including ITGT Stats
 Including Freq Stats
 Excluding TPMS devices
 
-Processed 20000 Packets as 6952 De-Duplicated Transmissions in  1.10sec 
+Processed 20000 Packets as 6952 De-Duplicated Transmissions in  0.21sec 
 Packets dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
 
                                          Signal-to-Noise                 Inter-Transmission Gap Time                     Frequency (MHz)                         Packets per Transmit          
-                               _________________________________   _______________________________________   ____________________________________________   ____________________________________
-Device                          #Pkts   Mean ±   𝜎    Min    Max    #Gaps    Mean  ±     𝜎     Min     Max    #Pkts     Mean  ±   𝜎          Min      Max    #Xmits    Mean ±   𝜎     Min    Max
+Device model/channel/id        _________________________________   _______________________________________   ____________________________________________   ____________________________________
+                                #Pkts   Mean ±   𝜎    Min    Max    #Gaps    Mean  ±     𝜎     Min     Max    #Pkts     Mean  ±   𝜎          Min      Max    #Xmits    Mean ±   𝜎     Min    Max
 Acurite-01185M/0/0                  4    9.6 ±  4.9   6.4   16.9        3  3678.7s ± 2812.7  434.0  5425.0        4   433.911 ±  0.017   433.902  433.936         3     1.0 ±  0.0      1      1
 Acurite-606TX//134                858    8.4 ±  2.1   5.5   20.0      857    53.0s ±  139.2   30.0  2573.0      858   433.901 ±  0.009   433.863  433.962       857     1.0 ±  0.0      1      1
 Acurite-609TXC//194              8006   19.3 ±  0.5  12.3   21.2     1356    33.5s ±    0.7   33.0    49.0     8006   433.931 ±  0.002   433.922  433.950      1356     5.9 ±  0.4      2      6
