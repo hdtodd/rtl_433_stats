@@ -4,7 +4,7 @@
 
 rtl\_433 is a program to decode radio transmissions from devices on the Industrial-Scientific-Medical bands used for remote sensing (mainly for the 433.92 MHz, 868 MHz (SRD), 315 MHz, 345 MHz, and 915 MHz ISM bands).  rtl\_433 identifies the sending device and the data values being communicated and reports them in a variety of possible formats.
 
-SNR is a Python3 program that analyzes the JSON log file from rtl\_433 to catalog the devices seen by rtl\_433 and characterize their radio transmissions.  It can be used to identify remote-sensing devices in your neighborhood and determine the reliability of individual devices as data sources by observing SNR, frequency variations, and reception reliability.
+SNR  (now `rtl_433_stats`) is a Python3 program that analyzes the JSON log file from rtl\_433 to catalog the devices seen by rtl\_433 and characterize their radio transmissions.  It can be used to identify remote-sensing devices in your neighborhood and determine the reliability of individual devices as data sources by observing SNR, frequency variations, and reception reliability.
 
 A device "transmission" represents one observation but may contain 1 to 6 or more "packets", and transmissions are frequently initiated by the remote device at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.
 
