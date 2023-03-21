@@ -98,7 +98,7 @@ To install and use the C version:
 
 ## Additional information
 
-The file SNR-v2-README.md contains the original release notes for SNR.py v2 and provides additional details about the differences in versions and how to use `rtl_433_stats`.
+The file SNR-v2-Release-NotesE.md contains the original release notes for SNR.py v2 and provides additional details about the differences in versions and how to use `rtl_433_stats`.
 
 ## Author
 David Todd, hdtodd@gmail.com, 2022.05.  Updated 2023.03.
