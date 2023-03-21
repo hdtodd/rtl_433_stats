@@ -35,12 +35,10 @@ Prerequisites:
 
 1.  An rtl_433 JSON log file to be processed
 
-2.  Python installation
-    * Python 3.x
-    * class_stats.py library (included in distribution)
+2.  Python 3.x installation
 
 Running:
-    python3 SNR.py [options]  <JSON input filename required>
+    python3 SNR [options]  -f <JSON input filename required>
 
 """
 
