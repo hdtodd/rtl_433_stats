@@ -110,7 +110,7 @@ class Data:
                 self.pkt_xmt = 0
             self.pkt_xmt += 1
 
-        return(dup)
+        return dup
 
     def get(self):
         return (self.pktcount,
@@ -141,7 +141,7 @@ def make_parser():
     parser.add_argument("-d", "--debug", dest="debug", action="store_true")
 
     args = parser.parse_args()
-    return (args)
+    return args
 
 ##########################################################################################
 # Convert time string ("ts") from ISO or epoch to float epoch, with either
@@ -163,7 +163,7 @@ def CnvTime(ts):
             print("Datetime conversion failed on line", lc, "with datetime string", ts)
             print("float() error msg:", err.get("error", str(e)))
             quit()
-    return(eTime)
+    return eTime
 
 ##########################################################################################
 # main program
@@ -178,7 +178,7 @@ omitFreq =  args.omit!=None and "Freq" in args.omit
 omitPPT  =  args.omit!=None and "PPT"  in args.omit
 
 firstTime = float('inf')
-lastTime  = 0
+lastTime  = 0.0
 DDTC = 0
 devices = {}
 
