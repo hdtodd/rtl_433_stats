@@ -3,13 +3,13 @@ SNR.py:
 	characterize their signal-to-noise ratio (SNR), packet/transmission
 	frequency, and radio frequency variations.
 
-Processing ISM 433MHz messages recorded by rtl_433 from file /Users/hdtodd/Downloads/rtl_snr/xaa.json
+Processing ISM 433MHz messages recorded by rtl_433 from file ../xaa.json
 Including SNR Stats
 Including ITGT Stats
 Including Freq Stats
 Excluding TPMS devices
 
-Processed 20000 Packets as 6952 De-Duplicated Transmissions in  0.20sec 
+Processed 20000 Packets as 6952 De-Duplicated Transmissions in  1.10sec 
 Packets dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
 
                                          Signal-to-Noise                 Inter-Transmission Gap Time                     Frequency (MHz)                         Packets per Transmit          
