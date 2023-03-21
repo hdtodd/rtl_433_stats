@@ -1,4 +1,4 @@
-# SNR v2.0.0 Release Notes
+# SNR (now `rtl_433_stats`) v2.0.0 Release Notes
 
 ## What SNR Does
 
