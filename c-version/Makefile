@@ -3,6 +3,7 @@
 # and logged in JSON format.
 #
 #2022.05.16	Inital version
+#2022.03.21     Updated to omit Python code
 #Author: HDTodd@gmail.com, Williston VT
 #
 
@@ -31,12 +32,9 @@ clean:
 install:
 	mkdir -p ${BIN}
 	mv snr ${BIN}
-	cp ../py-version/SNR.py ${BIN}
-	cp ../py-version/class_stats.py ${BIN}
 
 uninstall:
 	rm ${BIN}snr
-	rm ${BIN}SNR.py
-	rm ${BIN}class_stats.py
+
 
 
