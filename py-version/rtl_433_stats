@@ -243,8 +243,8 @@ with open(args.fn,"rt") as log:
         freq  = 0.0 if "freq" not in y else float(y["freq"])
 
         # Mark earliest and latest records for reporting
-        firstTime = eTime if (eTime<firstTime) else firstTime
-        lastTime  = eTime if (eTime>lastTime)  else lastTime
+        firstTime = min(eTime, firstTime)
+        lastTime  = max(eTime, lastTime)
         
 # We keep the following counters as the file is processed:
 #   lc = the total number of packets seen, of all types
