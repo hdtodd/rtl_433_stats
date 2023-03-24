@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+#  xtract-json
+# Program to fields from an rtl_433 JSON log file
+#   into a CSV file, with model+channel+id as device name keyword
+# Written by David Todd, hdtodd@gmail.com, 2023.03
+
+PROGNAME="xtract-json"
+VERSION="1.0.0"
+
+import sys
+import argparse
+import json
+from json.decoder import JSONDecodeError
+
+AP_DESCRIPTION="""
+\tExtract specified fields and their associated values from an rtl_433 JSON log 
+\tfile into a CSV-format file.
+\n\tThe first field of the output file is a device identifier constructed in the
+\tformat "model/channel/id", where those fields are the standard rtl_433
+\tdevice identifiers. The other fields follow, in CSV format.  
+\n\tThe first line is a header line that identifies the fields by name.
+\n\tIf no output file is specified, output is directed to the controlling terminal.
+"""
+
+AP_EPILOG="""
+
+"""
+
+##########################################################################################
+#  Routine to reate the command parser, parse cmd line,  and set defaults
+def make_parser():
+    
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=AP_DESCRIPTION,
+                                     epilog=AP_EPILOG)
+
+    parser.add_argument("-i", "--input", dest="in_file", required=True,
+                        help="Path to the rtl_433 JSON log file to be processed")
+    parser.add_argument("-o", "--output",   dest="out_file",
+                        help="Path to and name of CSV file to be created")
+    parser.add_argument("-f", "--field", nargs="+", required=True,
+                        help="List of JSON field names and associated values to be extracted")
+    parser.add_argument("-T", "--include_TPMS", action='store_true',
+                        dest="include_TPMS", default=False, 
+                        help="include tire pressure monitors in output (default: %(default)s)")
+    parser.add_argument("-d", "--debug", dest="debug", action="store_true")
+
+    args = parser.parse_args()
+    return args
+
+
+##########################################################################################
+# main program
+
+print(PROGNAME, VERSION, ":", AP_DESCRIPTION, file=sys.stdout)
+
+args = make_parser()
+
+print("Processing ISM 433MHz messages from file", args.in_file, file=sys.stdout)
+if args.out_file:
+    print("\t to file", args.out_file, file=sys.stdout)
+
+if args.out_file:
+    csv = open(args.out_file, "w")
+else:
+    csv = sys.stdout
+with open(args.in_file,"rt") as log:
+    lc = 0                # line count, for error reporting
+    print("{:<40}".format("0Device_key,"), end="", file=csv)
+    for f in args.field:
+        print("{:>10}".format(f+","), end="", file=csv)
+    print(file=csv)
+    for line in log:
+        lc += 1
+        # unpack the record in JSON
+        try:
+            y = json.loads(line)
+        except JSONDecodeError as e:
+            print("JSON decode error at file line ", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            print("Or are there null characters in your input file?")
+            print("Try sed 's/\\x0//g' oldfile > newfile to remove them")
+            quit()
+        except TypeError as e:
+            print("JSON type error in file line", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            quit()
+            
+        if not "model" in y:
+            continue
+        else:
+            if not "battery_ok" in y and not "status" in y:
+                continue
+            else:
+                key = y["model"] + "/"
+                if "channel" in y:
+                    key += str(y["channel"])
+                key += "/"
+                if "id" in y:
+                    key += str(y["id"])
+                key += ","
+                print("{:<40}".format(key), end="", file=csv)
+                for f in args.field:
+                    if f in y:
+                        print("{:>10}".format(y[f]), end=",", file=csv)
+                    else:
+                        print("{:>10}".format(" "), end=",", file=csv)
+                print(file=csv)
+
+print("\n\n", lc, "lines processed", file=sys.stdout)
+quit()
+
