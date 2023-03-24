@@ -90,10 +90,19 @@ with open(args.in_file,"rt") as log:
             print("JSON error msg:", err.get("error", str(e)))
             quit()
             
+        #  Ignore TPMS packets if told to do so                                                                                             if not args.include_TPMS:
+            if "type" in y and y["type"]=="TPMS":
+                continue
+            
+        # If a status record, no device "model"; ignore
         if not "model" in y:
             continue
         else:
-            if not "battery_ok" in y and not "status" in y:
+            # Does this record have a value for a field we want?
+            have_a_value = False
+            for f in args.field:
+                have_a_value = have_a_value or f in y
+            if not have_a_value:  # no
                 continue
             else:
                 key = y["model"] + "/"
