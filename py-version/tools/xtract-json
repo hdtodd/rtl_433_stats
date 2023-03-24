@@ -52,13 +52,13 @@ def make_parser():
 ##########################################################################################
 # main program
 
-print(PROGNAME, VERSION, ":", AP_DESCRIPTION, file=sys.stdout)
-
 args = make_parser()
 
-print("Processing ISM 433MHz messages from file", args.in_file, file=sys.stdout)
+print(PROGNAME, VERSION, ":", AP_DESCRIPTION)
+print("Processing ISM 433MHz messages from file", args.in_file)
 if args.out_file:
-    print("\t to file", args.out_file, file=sys.stdout)
+    print("\t to file", args.out_file)
+print("include_TPMS =", args.include_TPMS)
 
 if args.out_file:
     csv = open(args.out_file, "w")
@@ -68,7 +68,7 @@ with open(args.in_file,"rt") as log:
     lc = 0                # line count, for error reporting
     print("{:<40}".format("0Device_key,"), end="", file=csv)
     for f in args.field:
-        print("{:>10}".format(f+","), end="", file=csv)
+        print("{:>10}".format(f), end=",", file=csv)
     print(file=csv)
     for line in log:
         lc += 1
@@ -90,9 +90,9 @@ with open(args.in_file,"rt") as log:
             print("JSON error msg:", err.get("error", str(e)))
             quit()
             
-        #  Ignore TPMS packets if told to do so                                                                                             if not args.include_TPMS:
-            if "type" in y and y["type"]=="TPMS":
-                continue
+        #  Ignore TPMS packets if told to do so
+        if not args.include_TPMS and "type" in y and y["type"]=="TPMS":
+            continue
             
         # If a status record, no device "model"; ignore
         if not "model" in y:
@@ -114,12 +114,8 @@ with open(args.in_file,"rt") as log:
                 key += ","
                 print("{:<40}".format(key), end="", file=csv)
                 for f in args.field:
-                    if f in y:
-                        print("{:>10}".format(y[f]), end=",", file=csv)
-                    else:
-                        print("{:>10}".format(" "), end=",", file=csv)
+                    print("{:>10}".format(" " if not f in y else y[f]), end=",", file=csv)
                 print(file=csv)
 
 print("\n\n", lc, "lines processed", file=sys.stdout)
 quit()
-
