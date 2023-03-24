@@ -70,20 +70,23 @@ class stats():
 ##########################################################################################
 # Define a class to hold the data for a device and procedures to create, update, access
 class Data:
-    def __init__(self, snr, eTime, freq):
+    def __init__(self, snr, eTime, freq, battery, status):
         self.pktcount = 1
         self.xmtcount = 0
         self.pkt_xmt  = 1
         self.last_pkt_time = eTime
         self.last_xmt_time = eTime
+        self.battery = battery
+        self.status = status
         self.SNR  = None if omitSNR  else stats(snr)
         self.ITGT = None
         self.Freq = None if omitFreq else stats(freq)
         self.PPT  = None
+        return
 
     # Update information about this device and return a
     #  flag to indicate if it was a duplicate record for this xmit
-    def update(self, snr, eTime, freq):
+    def update(self, snr, eTime, freq, battery, status):
         self.pktcount += 1
         self.last_pkt_time = eTime
         dup = eTime < self.last_xmt_time + dup_thresh
@@ -107,8 +110,18 @@ class Data:
                     self.PPT.append(self.pkt_xmt)
                 self.pkt_xmt = 0
             self.pkt_xmt += 1
-
-        return dup
+        if battery != self.battery:
+            batt_change = True
+            self.battery = battery
+        else:
+            batt_change = False
+        if status != self.status:
+            stat_change = True
+            self.status = status
+        else:
+            stat_change = False
+         
+        return (dup, batt_change, stat_change)
 
     def get(self):
         return (self.pktcount,
@@ -241,7 +254,9 @@ with open(args.fn,"rt") as log:
         snr   = float(y["snr"])
         eTime = CnvTime(y["time"])
         freq  = 0.0 if "freq" not in y else float(y["freq"])
-
+        battery = None if "battery_ok" not in y else y["battery_ok"]
+        status  = None if "status"     not in y else y["status"]
+        
         # Mark earliest and latest records for reporting
         firstTime = min(eTime, firstTime)
         lastTime  = max(eTime, lastTime)
@@ -256,13 +271,17 @@ with open(args.fn,"rt") as log:
 #          and the first packet of the prior transmission.
 
         if dev in devices:
-            dup = devices[dev].update(snr, eTime, freq)
+            (dup, batt_change, stat_change)  = devices[dev].update(snr, eTime, freq, battery, status)
         else:
-            devices[dev] = Data(snr, eTime, freq)
-            dup = False
+            devices[dev] = Data(snr, eTime, freq, battery, status)
+            (dup, batt_change, stat_change)  = (False, False, False)
         if not dup:
             DDTC += 1
-
+        if batt_change:
+            print("{:<17} to {:>3} for {:<30} at {:<25}".format("battery_ok change", battery, dev, y["time"]))
+        if stat_change:
+            print("{:<17} to {:>3} for {:<30} at {:<25}".format("status change",     status,  dev, y["time"]))
+                 
 print("\nProcessed", lc, "Packets as", DDTC, "De-Duplicated Transmissions",
       "in {:>5.2f}sec".format(time.process_time()-start_time),
       "\nPackets dated from",time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(firstTime)),
