@@ -1,4 +1,4 @@
-# SNR (now `rtl_433_stats`) v2.0.0 Release Notes
+# SNR (now `rtl_433_stats`) v2.1.0 Release Notes
 
 ## What SNR Does
 
@@ -85,11 +85,15 @@ The `stats` class, used to compile statistics from the data stream, is now embed
 
 ### Performance
 
-SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 618,091 De-Duplicated Transmissions into the 4-category report in 79.95 sec on a Raspberry Pi-4B whereas SNR v1 processed the same file into just the SNR report in 55.3 sec on the same system.  SNR v2 took 68.1 sec to generate just the SNR report on the same system and file.  On a 2018 3GHz Intel Mac Mini, the V2 SNR full report required 15 sec.
+rtl\_433\_stats/SNR v2 processed a 60-day, 412MB file containing 1,547,234 Packets representing 618,091 De-Duplicated Transmissions into the 4-category report in 79.95 sec on a Raspberry Pi-4B whereas SNR v1 processed the same file into just the SNR report in 55.3 sec on the same system.  v2 took 68.1 sec to generate just the SNR report on the same system and file.  On a 2018 3GHz Intel Mac Mini, the V2 full report required 15 sec.
 
-### Known issues
+### Resolved issues
 
-Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file, and SNR is not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\x0//g' oldfile.json > newfile.json` on a Linux system; or `tr -d '\000' < oldfile.json > newfile.json` on OSX/Posix systems)
+Service disruptions may cause rtl\_433 to insert blocks of null characters (0x00) into the log file.
+
+Prior versions of rtl\433\_stats/SNR were not programmed to ignore those.  The JSON loader fails when null characters are encountered in the input file, and an error message is issued by SNR to inform and suggest a solution for removing the null characters.  (`sed -e 's/\x0//g' oldfile.json > newfile.json` on a Linux system; or `tr -d '\000' < oldfile.json > newfile.json` on OSX/Posix systems)
+
+v2.1.0 resolves that issue by stripping NUL characters from the input line before attempting the JSON load.
 
 ## Author
 David Todd, hdtodd@gmail.com, 2023.03

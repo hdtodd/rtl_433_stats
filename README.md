@@ -78,8 +78,6 @@ This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and
 
 The first packet from a device during a transmission interval (individually or as the first in a transmission packet) may have a distorted SNR because of a high auto-gain on the receiving RTL\_SDR dongle.  Some devices issue just one packet per transmission and others issue 3-6.  No fix anticipated.
 
-If the JSON input file has blocks of null characters (as might happen if the computer hosting rtl\_433 is interrupted), a JSON data load error occurs, message issued, and processing is terminated.  Guidance is provided on how to remove null characters from the JSON log file.
-
 ## Prior work
 
 `rtl_433_stats` was previously distributed as v1.0 of `rtl_snr` in two languages: the original C version (*snr*) and the original Python version (*SNR.py*).  Those programs summarized only signal-to-noise ratio. This distribution includes the C version in case it could be useful, but it has not been updated to the full functionality of the Python version.  However, the C version (*snr*) runs about 5 times faster than the Python version and so may be more desirable for some applications.  
