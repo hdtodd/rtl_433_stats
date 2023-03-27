@@ -213,7 +213,9 @@ with open(args.fn,"rt") as log:
     lc = 0                # line count, for error reporting
     for line in log:
         lc += 1
-        # unpack the rtl_433 JSON log record
+        # strip any NUL chars from the line
+        line = str.replace(line, "\x00", "", -1)
+        # and unpack the rtl_433 JSON log record
         try:
             y = json.loads(line)
         except JSONDecodeError as e:
