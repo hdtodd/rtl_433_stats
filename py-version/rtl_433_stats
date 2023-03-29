@@ -12,9 +12,10 @@
 # ITGT and PPT summarize statistics on transmissions
 #    (starting with the first packet of each transmission)
 
-VERSION="2.0.0"
+VERSION="2.1.0"
 
 import argparse
+import fileinput
 import json
 from json.decoder import JSONDecodeError
 import time
@@ -38,7 +39,7 @@ Prerequisites:
 2.  Python 3.x installation
 
 Running:
-    python3 rtl_433_stats [options]  -f <JSON input filename required>
+    python3 rtl_433_stats [options]  [-i <JSON files or .gz files> or defaults to stdin]
 
 """
 
@@ -139,8 +140,8 @@ def make_parser():
                                      description=AP_DESCRIPTION,
                                      epilog=AP_EPILOG)
 
-    parser.add_argument("-f", "--filename", dest="fn", required=True,
-                        help="Path to the rtl_433 JSON log file to be processed")
+    parser.add_argument("-i", "--input", metavar="FILE", nargs="*",
+                    help="Path to JSON log files to read in; can be .gz; can be wildcard; blank if <stdin>")
     parser.add_argument("-o", "--omit", choices=["SNR", "ITGT", "Freq", "PPT"],
                         nargs="+")
     parser.add_argument("-x", "--exclude_noise", type=int, dest="noise",
@@ -151,7 +152,6 @@ def make_parser():
                         dest="include_TPMS", default=False, 
                         help="include tire pressure monitors in catalog (default: %(default)s)")
     parser.add_argument("-v", "--version", action="version", version=VERSION)
-#    parser.add_argument("-d", "--debug", dest="debug", action="store_true")
 
     args = parser.parse_args()
     return args
@@ -195,7 +195,7 @@ lastTime  = 0.0
 DDTC = 0
 devices = {}
 
-print("Processing ISM 433MHz messages recorded by rtl_433 from file", args.fn)
+print("Processing ISM 433MHz messages recorded by rtl_433")
 print("Including" if not omitSNR  else "Excluding", "SNR Stats")
 print("Including" if not omitITGT else "Excluding", "ITGT Stats")
 print("Including" if not omitFreq else "Excluding", "Freq Stats")
@@ -209,9 +209,12 @@ if args.window != None:
    print("Using transmission window of", args.window, "sec rather than deafult", dup_thresh, "sec")
    dup_thresh = args.window
 
-with open(args.fn,"rt") as log:
-    lc = 0                # line count, for error reporting
+lc = 0                # line count, for error reporting
+with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed, encoding="utf-8") as log:
+#open(args.fn,"rt") as log:
     for line in log:
+        if log.isfirstline():
+           print("Processing file", log.filename())
         lc += 1
         # strip any NUL chars from the line
         line = str.replace(line, "\x00", "", -1)
