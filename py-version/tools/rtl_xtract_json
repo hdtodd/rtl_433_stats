@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+#  rtl_xtract_json
+# Program to extract records for a specific device from an
+#   rtl_433 JSON log file into a separate file.
+#   Records are identified by "model/channel/id" as device
+#   name keyword
+# Written by David Todd, hdtodd@gmail.com, 2023.03
+
+PROGNAME="rtl_xtract_json"
+VERSION="1.0.0"
+
+import sys
+import argparse
+import fileinput
+import json
+from json.decoder import JSONDecodeError
+
+AP_DESCRIPTION="""
+\tCopy records identified by a device identifier from an rtl_433 JSON log 
+\tfile into a separate JSON file.
+\n\tThe device identifier is constructed as "model/channel/id", where those 
+\tfields are the standard rtl_433 device identifiers. 
+\n\tThe complete JSON record of lines that match that identifier are copied
+\tto the specified output file.
+
+"""
+
+AP_EPILOG="""
+
+Input file specifications may be wildcard or stdin (-).  Files may be text, .gz, or .bz2.
+"""
+
+##########################################################################################
+#  Routine to reate the command parser, parse cmd line,  and set defaults
+def make_parser():
+    
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=AP_DESCRIPTION,
+                                     epilog=AP_EPILOG)
+
+    parser.add_argument("-d", "--device", dest="device", type=str, required=True, nargs="*",
+                        help="Identifier for the device to be copied in the format model/channel/id")
+    parser.add_argument("-i", "--input", metavar="FILE", nargs="*",
+                    help="Path to JSON log files to read in; can be .gz; can be wildcard; blank if <stdin>")
+    parser.add_argument("-o", "--output",   dest="out_file",
+                        help="Path to and name of CSV file to be created")
+
+    args = parser.parse_args()
+    return args
+
+
+##########################################################################################
+# main program
+
+args = make_parser()
+
+print(PROGNAME, VERSION, ":", AP_DESCRIPTION)
+print("Copying records for", args.device, "to file ", end="")
+
+if args.out_file:
+    out = open(args.out_file, "w")
+    print(args.out_file)
+else:
+    out = sys.stdout
+    print("stdout")
+
+lc = 0                # line count, for error reporting
+with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed, encoding="utf-8") as log:
+    for line in log:
+        if log.isfirstline():
+           print("Processing file", log.filename())
+        lc += 1
+        # strip any NUL chars from the line
+        line = str.replace(line, "\x00", "", -1)
+        # and unpack the rtl_433 JSON log record
+        try:
+            y = json.loads(line)
+        except JSONDecodeError as e:
+            print("JSON decode error at file line ", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            print("\nOr are there null characters in your input file?")
+            print("On Linux, try sed \"s/\\x0//g' oldfile.json > newfile.json\" to remove them")
+            print("On OSX/Posix, try \"tr -d '\\000' < oldfile.json > newfile.json\"")
+            quit()
+        except TypeError as e:
+            print("JSON type error in file line", lc)
+            print("Line contents:\n", line)
+            err = {}
+            print("JSON error msg:", err.get("error", str(e)))
+            quit()
+
+        #  Ignore packets with no "model" field
+        if not "model" in y:
+            continue
+
+        #  Statements below make 'model'/'channel'/'id' the key for cataloging and summarizing
+        #  Change the following statements to experiment with other keys
+        dev = y["model"] + "/"
+        if "channel" in y:
+            dev += str(y["channel"])
+        dev += "/"
+        if "id" in y:
+            dev += str(y["id"])  #use 'model'+'id' as unique key
+
+        if dev in args.device:
+            print(line, end="", file=out)
+
+print("\n\n", lc, "lines processed", file=sys.stdout)
+quit()

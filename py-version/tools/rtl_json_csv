@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-#  xtract-json
-# Program to fields from an rtl_433 JSON log file
+#  rtl_json_csvn
+# Program to extract fields from an rtl_433 JSON log file
 #   into a CSV file, with model+channel+id as device name keyword
 # Written by David Todd, hdtodd@gmail.com, 2023.03
 
-PROGNAME="xtract-json"
-VERSION="1.0.0"
+PROGNAME="rtl_json_csv"
+VERSION="2.0.0"
 
 import sys
 import argparse
+import fileinput
 import json
 from json.decoder import JSONDecodeError
 
@@ -23,6 +24,7 @@ AP_DESCRIPTION="""
 """
 
 AP_EPILOG="""
+Input file specifications may be wildcard or stdin (-).  Files may be text, .gz, or .bz2.
 
 """
 
@@ -34,8 +36,8 @@ def make_parser():
                                      description=AP_DESCRIPTION,
                                      epilog=AP_EPILOG)
 
-    parser.add_argument("-i", "--input", dest="in_file", required=True,
-                        help="Path to the rtl_433 JSON log file to be processed")
+    parser.add_argument("-i", "--input", metavar="FILE", nargs="*",
+                    help="Path to JSON log files to read in; can be .gz; can be wildcard; blank if <stdin>")
     parser.add_argument("-o", "--output",   dest="out_file",
                         help="Path to and name of CSV file to be created")
     parser.add_argument("-f", "--field", nargs="+", required=True,
@@ -55,23 +57,26 @@ def make_parser():
 args = make_parser()
 
 print(PROGNAME, VERSION, ":", AP_DESCRIPTION)
-print("Processing ISM 433MHz messages from file", args.in_file)
-if args.out_file:
-    print("\t to file", args.out_file)
-print("include_TPMS =", args.include_TPMS)
-
+print("Extracting records from JSON into CSV format into file ", end="")
 if args.out_file:
     csv = open(args.out_file, "w")
+    print(args.out_file)
 else:
     csv = sys.stdout
-with open(args.in_file,"rt") as log:
-    lc = 0                # line count, for error reporting
-    print("{:<40}".format("0Device_key,"), end="", file=csv)
-    for f in args.field:
-        print("{:>10}".format(f), end=",", file=csv)
-    print(file=csv)
+    print("stdout")
+print("include_TPMS =", args.include_TPMS)
+
+lc = 0                # line count, for error reporting
+print("{:<40}".format("0Device_key,"), end="", file=csv)
+for f in args.field:
+    print("{:>10}".format(f), end=",", file=csv)
+print(file=csv)
+with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed, encoding="utf-8") as log:
     for line in log:
         lc += 1
+        line = str.replace(line, "\x00", "", -1)
+        if log.isfirstline():
+           print("Processing file", log.filename())
         # unpack the record in JSON
         try:
             y = json.loads(line)
