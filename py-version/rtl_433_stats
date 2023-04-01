@@ -210,7 +210,7 @@ if args.window != None:
    dup_thresh = args.window
 
 lc = 0                # line count, for error reporting
-with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed, encoding="utf-8") as log:
+with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) as log:
 #open(args.fn,"rt") as log:
     for line in log:
         if log.isfirstline():
