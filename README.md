@@ -104,7 +104,7 @@ The key string for cataloging a device and labeling device in the report lines i
 ## Installation
 1. Use git to clone the distribution from Github, [https://github.com/hdtodd/rtl\_433\_stats](https://github.com/hdtodd/rtl_433_stats)  
 2. Connect to the download directory
-3. Type `python3 rtl_433_stats -i ../xaa.json` and compare its output with the file `xaa-output.rpt` to ensure that it is functioning correctly.
+3. Type `python3 rtl_433_stats -i xaa.json` and compare its output with the file `xaa-output.rpt` to ensure that it is functioning correctly.
 
 After verifying that `rtl_433_stats`is functioning correctly with test data, you may want to configure your `rtl_433` config file to record data from your own RTL_SDR dongle.  For example, add something like the following to your `rtl_433.conf` file:
 ```
