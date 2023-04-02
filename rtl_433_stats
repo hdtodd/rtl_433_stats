@@ -14,6 +14,7 @@
 
 VERSION="2.1.0"
 
+import sys
 import argparse
 import fileinput
 import json
@@ -28,16 +29,10 @@ dup_thresh = 2.0
 AP_DESCRIPTION="""
 \tAnalyze rtl_433 JSON logs to catalog the devices seen and to characterize
 \tstatistically their signal-to-noise ratio (SNR), times between
-\ttransmissions (ITGT),tradio frequency (Freq), and packets per transmission (PPT).
+\ttransmissions (ITGT), radio frequency (Freq), and packets per transmission (PPT).
 """
 
 AP_EPILOG="""
-Prerequisites:
-
-1.  An rtl_433 JSON log file to be processed
-
-2.  Python 3.x installation
-
 Running:
     python3 rtl_433_stats [options]  [-i <JSON files or .gz files> or defaults to stdin]
 
@@ -165,17 +160,17 @@ def CnvTime(ts):
             eTime = datetime.datetime.fromisoformat(y['time']).timestamp()
         except ValueError as e:
             err={}
-            print("datetime error in input line", lc, "converting time string: ", ts)
+            print("datetime error in input line", fileinput.filelineno(), "converting time string: ", ts)
             print("datetime msg:", err.get("error", str(e)))
-            quit()
+            sys.exit(1)
     else:
         try:
             eTime = float(ts)
         except ValueError as e:
             err = {}
-            print("Datetime conversion failed on line", lc, "with datetime string", ts)
+            print("Datetime conversion failed on line", fileinput.filelineno(), "with datetime string", ts)
             print("float() error msg:", err.get("error", str(e)))
-            quit()
+            sys.exit(1)
     return eTime
 
 ##########################################################################################
@@ -222,20 +217,20 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
         try:
             y = json.loads(line)
         except JSONDecodeError as e:
-            print("JSON decode error at file line ", lc)
+            print("JSON decode error at file line ", fileinput.filelineno())
             print("Line contents:\n", line)
             err = {}
             print("JSON error msg:", err.get("error", str(e)))
             print("\nOr are there null characters in your input file?")
             print("On Linux, try sed \"s/\\x0//g' oldfile.json > newfile.json\" to remove them")
             print("On OSX/Posix, try \"tr -d '\\000' < oldfile.json > newfile.json\"")
-            quit()
+            sys.exit(1)
         except TypeError as e:
-            print("JSON type error in file line", lc)
+            print("JSON type error in file line", fileinput.filelineno())
             print("Line contents:\n", line)
             err = {}
             print("JSON error msg:", err.get("error", str(e)))
-            quit()
+            sys.exit(1)
 
         #  Ignore packets with no "model" field
         if not "model" in y:
@@ -247,15 +242,14 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
                 continue
         
         #  Statements below make 'model'/'channel'/'id' the key for cataloging and summarizing
-        #  Change the following statements to experiment with other keys
         dev = y["model"] + "/"
         if "channel" in y:
             dev += str(y["channel"])
         dev += "/"
         if "id" in y:
-            dev += str(y["id"])  #use 'model'+'id' as unique key
+            dev += str(y["id"])
 
-        # Convert key data to standard form
+        # Convert data values to standard form
         snr   = float(y["snr"])
         eTime = CnvTime(y["time"])
         freq  = 0.0 if "freq" not in y else float(y["freq"])
@@ -287,12 +281,14 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
         if stat_change:
             print("{:<17} to {:>3} for {:<30} at {:<25}".format("status change",     status,  dev, y["time"]))
                  
+# Finished processing log files; write summary report
 print("\nProcessed", lc, "Packets as", DDTC, "De-Duplicated Transmissions",
       "in {:>5.2f}sec".format(time.process_time()-start_time),
       "\nPackets dated from",time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(firstTime)),
        "to", time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(lastTime)))
 print()
 
+# First, the header, dependent upon cmdline options
 print("{:<30} ".format(""), end="")
 if not omitSNR:
     print("{:^36}  ".format("Signal-to-Noise"), end="")
@@ -326,6 +322,7 @@ if not omitPPT:
     print("   {:>7}    {:>5}   {:>5}  {:>5}".format("#Xmits", "Mean ±   𝜎", "Min", "Max"), end="")
 print()        
 
+# And now the data values from the table
 for d in sorted(devices):
     (pkt, xmt, SNR, ITGT, Freq, PPT) = devices[d].get()
     if pkt < noise:
@@ -350,3 +347,5 @@ for d in sorted(devices):
             (n,avg,std,min,max) = (0,0.,0.,0.,0.)
         print("   {:>7}  {:>6.1f} ± {:>4.1f}  {:>5.0f}  {:>5.0f}".format(n,avg,std,min,max), end="")
     print()
+
+sys.exit(0)
