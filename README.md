@@ -101,6 +101,8 @@ The key string for cataloging a device and labeling device in the report lines i
 
 `rtl_433_stats` tracks packet times _per device_ so that data for transmissions from different devices are separated and tranmission statistics for individual devices are more reliable in high-traffic areas.
 
+While processing the JSON log files, `rtl_433_stats` monitors the "battery_ok" and "status" flags for each device (if present in the packets) and prints an alert that there has been a change in condition in the remote device.  Generally a 1-->0 change in "battery_ok" indicates a low voltage on the battery and suggests that the battery should be changed.  The values of "status" vary by device and are generally not well documented, but the program notes them for you in case further investigation is justified.
+
 ## Installation
 1. Use git to clone the distribution from Github, [https://github.com/hdtodd/rtl\_433\_stats](https://github.com/hdtodd/rtl_433_stats)  
 2. Connect to the download directory
