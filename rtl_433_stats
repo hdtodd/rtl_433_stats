@@ -12,8 +12,6 @@
 # ITGT and PPT summarize statistics on transmissions
 #    (starting with the first packet of each transmission)
 
-VERSION="2.1.0"
-
 import sys
 import argparse
 import fileinput
@@ -22,6 +20,8 @@ from json.decoder import JSONDecodeError
 import time
 import datetime
 import math
+
+VERSION="2.1.0"
 
 # Set gap time for packets to be considered to be duplicatd
 dup_thresh = 2.0
@@ -89,7 +89,7 @@ class Data:
         if not omitSNR:
             self.SNR.append(snr)
         if not omitITGT and not dup:
-            if self.ITGT == None:
+            if self.ITGT is None:
                 self.ITGT = stats(eTime-self.last_xmt_time)
             else:
                 self.ITGT.append(eTime-self.last_xmt_time)
@@ -100,7 +100,7 @@ class Data:
             self.Freq.append(freq)
         if not omitPPT:
             if not dup:
-                if self.PPT == None:
+                if self.PPT is None:
                     self.PPT = stats(self.pkt_xmt)
                 else:
                     self.PPT.append(self.pkt_xmt)
@@ -180,10 +180,10 @@ start_time = time.process_time()
 print("rtl_433_stats:", AP_DESCRIPTION)
 
 args = make_parser()
-omitSNR  =  args.omit!=None and "SNR"  in args.omit
-omitITGT =  args.omit!=None and "ITGT" in args.omit
-omitFreq =  args.omit!=None and "Freq" in args.omit
-omitPPT  =  args.omit!=None and "PPT"  in args.omit
+omitSNR  =  args.omit is not None and "SNR"  in args.omit
+omitITGT =  args.omit is not None and "ITGT" in args.omit
+omitFreq =  args.omit is not None and "Freq" in args.omit
+omitPPT  =  args.omit is not None and "PPT"  in args.omit
 
 firstTime = float('inf')
 lastTime  = 0.0
@@ -195,12 +195,12 @@ print("Including" if not omitSNR  else "Excluding", "SNR Stats")
 print("Including" if not omitITGT else "Excluding", "ITGT Stats")
 print("Including" if not omitFreq else "Excluding", "Freq Stats")
 print("Including" if args.include_TPMS else "Excluding", "TPMS devices")
-if not args.noise==None:
+if args.noise is not None:
     print("Excluding devices with fewer than", args.noise, "packets seen")
     noise = args.noise
 else:
     noise = 0
-if args.window != None:
+if args.window is not None:
    print("Using transmission window of", args.window, "sec rather than deafult", dup_thresh, "sec")
    dup_thresh = args.window
 
@@ -233,7 +233,7 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
             sys.exit(1)
 
         #  Ignore packets with no "model" field
-        if not "model" in y:
+        if "model" not in y:
             continue
 
         #  Ignore TPMS packets if told to do so
@@ -332,7 +332,7 @@ for d in sorted(devices):
         (n,avg,std,min,max) = SNR.get()
         print("{:>7} {:>6.1f} ±{:>5.1f} {:>5.1f}  {:>5.1f}".format(n,avg,std,min,max), end="")
     if not omitITGT:
-        if ITGT != None:
+        if ITGT is not None:
            (n,avg,std,min,max) = ITGT.get()
         else:
            (n,avg,std,min,max) = (0,0.,0.,0.,0.)
@@ -341,7 +341,7 @@ for d in sorted(devices):
         (n,avg,std,min,max) = Freq.get()
         print("  {:>7}  {:>8.3f} ± {:>6.3f}  {:>8.3f} {:>8.3f}".format(n,avg,std,min,max), end="")
     if not omitPPT:
-        if PPT != None:
+        if PPT is not None:
             (n,avg,std,min,max) = PPT.get()
         else:
             (n,avg,std,min,max) = (0,0.,0.,0.,0.)
