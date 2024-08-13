@@ -1,4 +1,4 @@
-# rtl\_433\_stats v2.1.0
+# rtl\_433\_stats v2.2.0
 Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 
 ## Function
@@ -128,4 +128,5 @@ The `tools` directory contains two Python scripts that may be useful for extract
 A reduced-functionality version of `rtl_433_stats` is available as a c-language version in the directory `c-version` as the program `snr`.  That program analyzes only signal-to-noise ratios and does not have the options for selecting records to be processed, but it may be useful in some circumstances (and is much faster in execution).
 
 ## Author
-David Todd, hdtodd@gmail.com, 2022.05.  Updated 2023.04.
+David Todd, hdtodd@gmail.com, 2022.05;  v2.1 2023.04; v2.2 2024.08 adds support for both ISO and Unix Epoch time stamps in the JSON log file.
+

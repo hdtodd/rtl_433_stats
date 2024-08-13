@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # rtl_433_stats
+VERSION="2.2.0"
+
 # Program to catalog devices seen by rtl_433 and  to analyze and summarize
 #   device performance data.
 # This version analyzes signal-to-noise ratios (SNR), 
@@ -20,8 +22,6 @@ from json.decoder import JSONDecodeError
 import time
 import datetime
 import math
-
-VERSION="2.1.0"
 
 # Set gap time for packets to be considered to be duplicatd
 dup_thresh = 2.0
@@ -151,27 +151,32 @@ def make_parser():
     args = parser.parse_args()
     return args
 
-##########################################################################################
-# Convert time string ("ts") from ISO or epoch to float epoch, with either
-#  integer or fractional seconds
+###############################################################################
+# Convert time string (ts) from ISO format to epoch time
+# Or, if ts is in epoch time, convert to timestamp format.
+# Return both formats for use in processing and displaying
 def CnvTime(ts):
     if ts.find("-") > 0:
         try:
-            eTime = datetime.datetime.fromisoformat(y['time']).timestamp()
+            eTime = datetime.datetime.fromisoformat(ts).timestamp()
+            timestamp = ts
         except ValueError as e:
             err={}
-            print("datetime error in input line", fileinput.filelineno(), "converting time string: ", ts)
-            print("datetime msg:", err.get("error", str(e)))
+            print("datetime error in input line converting time string: ", ts)
+            print("datetime  msg:", err.get("error", str(e)))
             sys.exit(1)
     else:
         try:
             eTime = float(ts)
+            timestamp = datetime.datetime.fromtimestamp(eTime)
         except ValueError as e:
             err = {}
-            print("Datetime conversion failed on line", fileinput.filelineno(), "with datetime string", ts)
+            print("Datetime conversion failed on line with datetime string", ts)
             print("float() error msg:", err.get("error", str(e)))
             sys.exit(1)
-    return eTime
+
+    return(timestamp, eTime)
+# End CnvTime()
 
 ##########################################################################################
 # main program
@@ -250,8 +255,8 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
             dev += str(y["id"])
 
         # Convert data values to standard form
-        snr   = float(y["snr"])
-        eTime = CnvTime(y["time"])
+        (ts,eTime)   = CnvTime(y["time"])
+        snr   = 0.0 if "snr" not in y else float(y["snr"])
         freq  = 0.0 if "freq" not in y else float(y["freq"])
         battery = None if "battery_ok" not in y else y["battery_ok"]
         status  = None if "status"     not in y else y["status"]
