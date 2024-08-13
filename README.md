@@ -1,4 +1,4 @@
-# rtl\_433\_stats
+# rtl\_433\_stats v2.1.0
 Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 
 ## Function
