@@ -89,6 +89,9 @@ for these device characteristics:
 * radio frequency of transmissions (Freq) over all packets from that device,
 * the number of packets per transmission (PPT).
 
+>[!NOTE]
+>The frequency reported is that associated with the JSON field "freq".  For devices that report more than one frequency, the field labeled "freq1" is used.
+
 A command-line option allows the de-selection of any or all of these statistics reports (default is to report all four).
 
 A device "transmission" represents one observation but may contain 1 to 6 or more "packets", and transmissions are frequently initiated by remote sensor devices at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.
@@ -127,6 +130,16 @@ The `tools` directory contains two Python scripts that may be useful for extract
 
 A reduced-functionality version of `rtl_433_stats` is available as a c-language version in the directory `c-version` as the program `snr`.  That program analyzes only signal-to-noise ratios and does not have the options for selecting records to be processed, but it may be useful in some circumstances (and is much faster in execution).
 
-## Author
-David Todd, hdtodd@gmail.com, 2022.05;  v2.1 2023.04; v2.2 2024.08 adds support for both ISO and Unix Epoch time stamps in the JSON log file.
+## Release History
 
+| Version | Date    | Changes |
+|---------|---------|---------|
+| V2.2.1  | 2026.06 | For devices reporting multiple frequencies that don't present a field labeled "freq", use the value associated with "freq1" as the frequency value. |
+| V2.2.0    | 2024.08 | Add support for both ISO and Unix Epoch time stamps in the JSON log file |
+| V2.1      | 2023.04 | Complete documentation and full version |
+| V1.0      | 2022.05 | First operational version. |
+
+
+## Author
+
+David Todd, hdtodd@gmail.com; <http://github.com/hdtodd/>

@@ -257,7 +257,10 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
         # Convert data values to standard form
         (ts,eTime)   = CnvTime(y["time"])
         snr   = 0.0 if "snr" not in y else float(y["snr"])
-        freq  = 0.0 if "freq" not in y else float(y["freq"])
+        #2.2.1
+        #freq    = 0.0 if "freq" not in y else float(y["freq"])
+        fstring = "freq" if "freq" in y else "freq1"
+        freq    = 0.0 if fstring not in y else float(y[fstring])
         battery = None if "battery_ok" not in y else y["battery_ok"]
         status  = None if "status"     not in y else y["status"]
         
