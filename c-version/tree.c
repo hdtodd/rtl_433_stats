@@ -5,6 +5,7 @@
 // Data values are stored in a data structure associated with each
 //   keyed node.
 // hdtodd@gmail.com, 2022.05.22
+// Modified 2026.06.20 to include additional data fields (freq, ITGT, PKT)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,23 +16,22 @@
 #include "tree.h"
 
 char MODULE[] = "tree -- simple binary tree model";
-int node_number = 0;
+int node_number = 0;  // may be useful for debugging
 
-//  create a new attribute data node 
+//  Create a new attribute node
 APTR attr_new(void) {
   APTR p;
-#ifdef DEBUG
-  printf("entering attr_new\n");
-#endif
   p = (APTR) malloc(sizeof(ATTR));
   if (p == NULL) {
     fprintf(stderr, "Out of memory while allocating space for a new attribute node in 'tree'\n");
     exit(EXIT_FAILURE);
   };
-  p->count = 0;
-  p->mean = p->std2 = (double)0.0e0;
-  p->min = (double)+INFINITY;
-  p->max = (double)-INFINITY;
+  p->pktcount  = 0;
+  p->xmitcount = 0;
+  p->snr       = stats_new();
+  p->itgt      = stats_new();
+  p->freq      = stats_new();
+  p->ppt       = stats_new();
   return p;
 };
 
@@ -51,11 +51,10 @@ NPTR node_new(char *key) {
   strcpy(p->key,key);
   p->attr = (APTR) attr_new();
   p->num = node_number;
-  p->bh = EH;
   p->lptr = p->rptr = NULL;
 #ifdef DEBUG
-  printf("Node[%2d]: key=%s, balance=%d, lptr=0x%x, rptr=0x%x\n", p->num, p->key, p->bh, p->lptr, p->rptr);
-  printf("\tattr address=%x, attr_count = %d\n", p->attr, (p->attr)->count);
+  printf("Node[%2d]: key=%s, lptr=0x%x, rptr=0x%x\n", p->num, p->key, p->lptr, p->rptr);
+  printf("\tattr address=%x, pktcount = %d\n", p->attr, (p->attr)->pktcount);
 #endif
   return p;
 };
@@ -88,22 +87,15 @@ NPTR node_find(NPTR root, char *key) {
   return(NULL);
 };  
 
-// Not implemented as node_find does this
-NPTR node_insert(char *key) {
-  printf("Spurious call to 'node_insert: should not have occurred\n");
-  return NULL;
-};
-
 // In-order printing of the tree with the 'stats_print' function
 void tree_print(NPTR p) {
   if (p != NULL) {
     tree_print(p->lptr);
 #ifdef DEBUG
-    printf("In tree_print, Node[%3d]: %-12s  %2d\n", p->num, p->key, (p->attr)->count);
+    printf("In tree_print, Node[%3d]: %-12s  %2d\n", p->num, p->key, (p->attr)->pktcount);
 #endif
-    stats_get( (bstats *)p->attr);
     printf("%-30s ", p->key);
-    stats_print( (bstats *)p->attr);
+    stats_print(p->attr->snr);
     tree_print(p->rptr);
   };
 };

@@ -2,6 +2,7 @@
    data from rtl_433 JSON logs.
 
    Written by HDTodd@gmail.com, 2022.05.16
+   Modified 2026.06.20 to report more than just SNR data values
 */
 
 #define _XOPEN_SOURCE
@@ -25,12 +26,16 @@ char model[201];
 char timestring[40];
 char id[20];
 double snr;
+double freq;
+double freq1;
 
 const struct json_attr_t json_rtl[] = {
   {"time",   t_string,  .addr.string = timestring, .len = sizeof(timestring)},
   {"model",  t_string,  .addr.string = model,      .len = sizeof(model)},
   {"id",     t_string , .addr.string = id,          .len = sizeof(id)},
-  {"snr",    t_real,    .addr.real    = &snr},
+  {"snr",    t_real,    .addr.real   = &snr},
+  {"freq",   t_real,    .addr.real   = &freq},
+  {"freq1",  t_real,    .addr.real   = &freq1},
   {"",       t_ignore},
   {NULL},
 };;
@@ -40,10 +45,10 @@ time_t dFirst, dLast;
 char inFileName[60];
 int fnLen = 39;
 
+// Print the data for each device in the tree
 void node_print(NPTR p) {
-    stats_get( (bstats *)p->attr);
     printf("%-27s", p->key);
-    stats_print( (bstats *)p->attr);
+    stats_print(p->attr->snr);
 };
 
 
@@ -66,9 +71,9 @@ int main(int argc, char *argv[])
     int status = 0;
     int errCode = 0;
     struct tm tm;
-    NPTR root=NULL, base, node;
-    APTR attr;
-    bstats *snrstats;
+    NPTR  root=NULL, base, node;
+    APTR  attr;
+    BSPTR snrstats;
 
     printf("\nsnr: Analyze rtl_433 json log files\n");
     // process command line to retrieve options selected, leave in global vars
@@ -100,7 +105,7 @@ int main(int argc, char *argv[])
 	node = node_find(root,model);
 	if (root == NULL) root = node;
 	if (node != NULL)
-	  stats_append(snr, (bstats *)node->attr);
+	  stats_append(snr, (node->attr)->snr);
 	else {
 	  fprintf(stderr, "NULL node for %s at line %d\n", model, lc);
 	  exit(EXIT_FAILURE);

@@ -3,6 +3,7 @@
 //    a stream of data values:
 //    count of # of values, mean, std dev, min, max
 //  hdtodd@gmail.com, 2022.05.22
+//  Modified 2026.06.20 to add 'stats_stddev' function
 
 typedef struct {
   int    count;
@@ -10,10 +11,10 @@ typedef struct {
   double std2;
   double min;
   double max;
-  } bstats;
+} BSTATS, *BSPTR;;
 
-bstats  *stats_new(void);
-void    stats_print(bstats *data);
-bstats  *stats_get(bstats *data);
-void    stats_append(double x, bstats *data);
+BSPTR   stats_new(void);
+void    stats_print(BSPTR data);
+void    stats_append(double x, BSPTR data);
+double  stats_stddev(BSPTR data);
 

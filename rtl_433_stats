@@ -128,7 +128,7 @@ class Data:
                 self.PPT)
 
 ##########################################################################################
-#  Routine to reate the command parser, parse cmd line,  and set defaults
+#  Routine to create the command parser, parse cmd line, and set defaults
 def make_parser():
     
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -206,7 +206,7 @@ if args.noise is not None:
 else:
     noise = 0
 if args.window is not None:
-   print("Using transmission window of", args.window, "sec rather than deafult", dup_thresh, "sec")
+   print("Using transmission window of", args.window, "sec rather than default", dup_thresh, "sec")
    dup_thresh = args.window
 
 lc = 0                # line count, for error reporting

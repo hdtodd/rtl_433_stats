@@ -1,23 +1,21 @@
 // tree.h
 // Include file with definitions used by binary tree code
-
-// Define balance factor for subtree:
-//   LH==>left high; EH==>equal height; RH==>right high
-typedef enum {LH=-1, EH=0, RH =+1} BALANCEFACTOR;
+//   for processing data into per-device records
+//   and with structures to contain the data for that device
 
 typedef struct attr {
-  int            count;
-  double         mean;
-  double         std2;
-  double         min;
-  double         max;
+  int           pktcount;
+  int           xmitcount;
+  BSPTR         snr;
+  BSPTR         itgt;
+  BSPTR         freq;
+  BSPTR         ppt;
 } ATTR, *APTR;
 
 typedef struct node {
   char           *key;
   APTR           attr;
   int            num;
-  BALANCEFACTOR  bh;
   struct node   *lptr;
   struct node   *rptr;
 } NODE, *NPTR;
