@@ -93,6 +93,12 @@ int main(int argc, char *argv[])
       tm.tm_isdst = 1;
       timestamp = mktime(&tm);
       if (timestamp<dFirst || timestamp>dLast) continue;  // ignore recs not in date-time range
+      // If "freq" is a defined field in the packet, json_read_object() assigns its value to freq
+      //   If not, freq is assigned a value of 0
+      // So use the value of freq if it is non-zero, otherwise use the value of freq1 (which
+      //   may also be zero, implying that there is no frequency value in the JSON record
+      freq = (freq != (double)0.0 ) ? freq : freq1;
+
       // Statement below makes 'model'+'id' the key for cataloging and summarizing
       // Change the following statement to experiment with other keys
       strcat(model, " "); strcat(model, id);   // 'model'+'id' is the key for lookups
@@ -106,6 +112,8 @@ int main(int argc, char *argv[])
 	if (root == NULL) root = node;
 	if (node != NULL)
 	  stats_append(snr, (node->attr)->snr);
+	if (freq != (double)0.0)
+	  stats_append(freq, (node->attr)->freq);
 	else {
 	  fprintf(stderr, "NULL node for %s at line %d\n", model, lc);
 	  exit(EXIT_FAILURE);
