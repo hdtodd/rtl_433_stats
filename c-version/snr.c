@@ -47,8 +47,16 @@ int fnLen = 39;
 
 // Print the data for each device in the tree
 void node_print(NPTR p) {
-    printf("%-27s", p->key);
-    stats_print(p->attr->snr);
+  BSPTR s;
+  printf("%-27s", p->key);
+  //    stats_print(p->attr->snr);
+  s = (p->attr)->snr;
+  printf("%6d %6.1lf ± %4.1lf %6.1lf %6.1lf    ",
+         s->count, s->mean, stats_stddev(s), s->min, s->max);
+  s = (p->attr)->freq;
+  printf("%7.3lf ± %5.3lf  %7.3lf  %7.3lf    ",
+         s->mean, stats_stddev(s), s->min, s->max);
+  printf("\n");
 };
 
 
@@ -137,8 +145,16 @@ int main(int argc, char *argv[])
     ts = *localtime(&latestDTS);
     strftime(lt,sizeof(lt),"%a %Y-%m-%d %H:%M:%S", &ts);
     printf("\nProcessed %d de-duplicated records\nDated from %s to %s\n\n", rc, ft, lt);
-    printf("%-25s  %6s  %14s %6s %6s\n",
-	   "Device","#Recs", "Mean SNR ± 𝜎", "Min", "Max");
+    printf("%-34s             SNR", " ");
+    printf("%-15s       Frequency", " ");
+    printf("\n");
+    printf("%-34s  _________________________", " ");
+    printf("%-2s  _________________________________", " ");
+    printf("\n");
+    printf("%-25s  %6s  ", "Device","#Xmits");
+    printf("%-14s %6s %6s    ",  " Mean ±   𝜎", "Min", "Max");
+    printf("%14s%6s  %6s   ", " Mean    ±  𝜎   ", "Min ", "Max");
+    printf("\n");
     tree_process(root, &node_print);
 
     if (fclose(fp)) {
