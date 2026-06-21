@@ -23,8 +23,9 @@
 #include "tree.h"
 
 char model[201];
-char timestring[40];
+char channel[20];
 char id[20];
+char timestring[40];
 double snr;
 double freq;
 double freq1;
@@ -32,6 +33,7 @@ double freq1;
 const struct json_attr_t json_rtl[] = {
   {"time",   t_string,  .addr.string = timestring, .len = sizeof(timestring)},
   {"model",  t_string,  .addr.string = model,      .len = sizeof(model)},
+  {"channel",t_string,  .addr.string = channel,    .len = sizeof(channel)},
   {"id",     t_string , .addr.string = id,          .len = sizeof(id)},
   {"snr",    t_real,    .addr.real   = &snr},
   {"freq",   t_real,    .addr.real   = &freq},
@@ -45,14 +47,13 @@ time_t dFirst, dLast;
 char inFileName[60];
 int fnLen = 39;
 
-// Print the data for each device in the tree
+// Print the statistics for the device pointed to by 'p'
 void node_print(NPTR p) {
   BSPTR s;
   printf("%-27s", p->key);
-  //    stats_print(p->attr->snr);
   s = (p->attr)->snr;
-  printf("%6d %6.1lf ± %4.1lf %6.1lf %6.1lf    ",
-         s->count, s->mean, stats_stddev(s), s->min, s->max);
+  printf("%6d %6d  %5.1lf ± %4.1lf %6.1lf %6.1lf    ",
+         s->count, s->count, s->mean, stats_stddev(s), s->min, s->max);
   s = (p->attr)->freq;
   printf("%7.3lf ± %5.3lf  %7.3lf  %7.3lf    ",
          s->mean, stats_stddev(s), s->min, s->max);
@@ -82,9 +83,14 @@ int main(int argc, char *argv[])
     NPTR  root=NULL, base, node;
     APTR  attr;
     BSPTR snrstats;
+    clock_t tic, toc;
+    
+    printf("\nsnr:\n%s%s%s",
+	   "\tAnalyze rtl_433 JSON logs to catalog the devices seen and to characterize\n",
+	   "\tstatistically their signal-to-noise ratio (SNR), radio frequency (Freq),\n",
+	   "\ttimes between transmissions (ITGT), and packets per transmission (PPT).\n\n");
 
-    printf("\nsnr: Analyze rtl_433 json log files\n");
-    // process command line to retrieve options selected, leave in global vars
+    // process the command line to retrieve options selected, leave in global vars, open file
     if ( (errCode=processCmdLine(argc, argv)) != 0 ) exit(errCode);
     fp = fopen(inFileName, "r");
     if (!fp) {
@@ -93,7 +99,8 @@ int main(int argc, char *argv[])
     };
 
     // Ready to process input file
-    printf("Processing ISM 433MHz messages from file %s\n", inFileName);
+    printf("Processing ISM messages recorded by rtl_433 from file %s\n", inFileName);
+    tic = clock();
     while (fgets(lbuf, sizeof(lbuf), fp)) {
       lc++;
       status = json_read_object(lbuf, json_rtl, NULL);
@@ -107,9 +114,9 @@ int main(int argc, char *argv[])
       //   may also be zero, implying that there is no frequency value in the JSON record
       freq = (freq != (double)0.0 ) ? freq : freq1;
 
-      // Statement below makes 'model'+'id' the key for cataloging and summarizing
+      // Statement below makes 'model/channel/id' the key for cataloging and summarizing
       // Change the following statement to experiment with other keys
-      strcat(model, " "); strcat(model, id);   // 'model'+'id' is the key for lookups
+      strcat(model, "/"); strcat(model, channel); strcat(model, "/"); strcat(model, id);
       if ( (strcmp(model, lastmodel) != 0) ||
 	   (timestamp > lasttime+2) ) {
 #ifdef DEBUG
@@ -140,19 +147,22 @@ int main(int argc, char *argv[])
     };
 
     // Finished input file; print result summary
+    toc = clock();
     ts = *localtime(&earliestDTS);
     strftime(ft,sizeof(ft),"%a %Y-%m-%d %H:%M:%S", &ts);
     ts = *localtime(&latestDTS);
     strftime(lt,sizeof(lt),"%a %Y-%m-%d %H:%M:%S", &ts);
-    printf("\nProcessed %d de-duplicated records\nDated from %s to %s\n\n", rc, ft, lt);
-    printf("%-34s             SNR", " ");
-    printf("%-15s       Frequency", " ");
+    printf("\nProcessed %d Packets as %d De-Duplicated Transmissions in %7.3lf sec\n",
+	   rc, rc, ( (double) (toc-tic) / CLOCKS_PER_SEC) );
+    printf("Packets Dated from %s to %s\n\n",ft, lt);
+    printf("%-34s              Signal-to-Noise", " ");
+    printf("%-15s Frequency (MHz)", " ");
     printf("\n");
-    printf("%-34s  _________________________", " ");
+    printf("%-34s         _________________________", " ");
     printf("%-2s  _________________________________", " ");
     printf("\n");
-    printf("%-25s  %6s  ", "Device","#Xmits");
-    printf("%-14s %6s %6s    ",  " Mean ±   𝜎", "Min", "Max");
+    printf("%-25s  %6s %6s  ", "Device","#Pkts", "#Xmits");
+    printf("%-14s  %6s%6s    ",  " Mean ±   𝜎", "Min", "Max");
     printf("%14s%6s  %6s   ", " Mean    ±  𝜎   ", "Min ", "Max");
     printf("\n");
     tree_process(root, &node_print);
