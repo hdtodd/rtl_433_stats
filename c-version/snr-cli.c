@@ -84,7 +84,7 @@ int processCmdLine(int argc, char* argv[]) {
 
       case '?':
       case 'h':
-	printf("SNR:  Program to analyze rtl_433 packet logs for SNR performance\n");
+	printf("SNR:  Program to analyze device characteristics from rtl_433 packet logs\n");
 	printf("     Usage: %s [OPTIONS]\n", argv[0]);
 	printf("     [OPTIONS] are any combination of\n\tLong form       Short\tOption invoked\n");
 	for (i=0; long_opt[i].name!=NULL; i++) {

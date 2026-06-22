@@ -26,12 +26,15 @@ APTR attr_new(void) {
     fprintf(stderr, "Out of memory while allocating space for a new attribute node in 'tree'\n");
     exit(EXIT_FAILURE);
   };
-  p->pktcount  = 0;
-  p->xmitcount = 0;
-  p->snr       = stats_new();
-  p->itgt      = stats_new();
-  p->freq      = stats_new();
-  p->ppt       = stats_new();
+  p->pktcount      = 0;
+  p->xmtcount      = 0;
+  p->pkt_xmt       = 0;
+  p->last_pkt_time = (time_t) 0x00000000;
+  p->last_xmt_time = (time_t) 0x00000000;
+  p->snr           = stats_new();
+  p->itgt          = stats_new();
+  p->freq          = stats_new();
+  p->ppt           = stats_new();
   return p;
 };
 
