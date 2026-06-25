@@ -1,0 +1,55 @@
+2026.06.25
+Spent the last day doing a detailed manual analysis of ITGT and PPT for
+Acurite-01185M/0/0 [4 pkts, 4 xmits], Markisol/0/256 [20 pkts, 20 xmits],
+and Acurite-609TXC//194 [8006 pkts, 1357 or 1356 xmits].  The Excel spreadsheet
+got 1356 xmits; the Python & c code got 1457.  Inclined to believe the programs,
+since the other two are correct.
+
+Confirmed the ITGT and PPT stats for the Python code for all three cases.
+C code for 609TXC got 8006/1446 rather than 8006/1357 for pkt/xmits.
+SNR & freq are correct, but ITGT and PPT are far off.
+
+C code logic for packet detection needs work (more work).  But at least I've
+confirmed manually that Python code gets it right.
+
+Finally got tables of values to agree between Py & C versions (handling the
+closure of a transmission timing & pkt count was tricky in C code).
+
+Finish formatting output and the compare outputs with diff so that it's easy
+to confirm that tables agree.
+
+2026.06.23
+Developed C code and it seems to be working; found a problem in Python code in de-duping logic
+that I need to go back and fix, then finish validating c cod.
+
+Initially, at least, looks like c code runs much SLOWER than Python code.
+
+
+2026.06.19
+
+Branch 2.3.1 is a development branch off 2.3
+In developing the c code for 2.3, I found that the Python code was incorrectly categorizing
+some packets as duplicates.  Note those with "1185M" in xaa.json, in particular: there are
+4 distinct packets; the c code recognized them as distinct transmissions; the Python code
+thought there were 4 packets but that 1 was a dup.  I'm guessing that the Python code used
+the time for the PRIOR PACKET RECEIVED, not the timestamp for the PRIOR PACKET FOR THAT DEVICE
+to decide if it was a dup or not.  Total number of "dups" in Python code for that test set
+was about 100 more than for the c code.  In a high-volume area, that count would be far worse.
+
+Corrected the Python code and it now gets the xmit count correctly.
+
+I also want to revise the output to order cols as SNR, Freq, ITGT, PKT and eliminate
+redundant xmit cols.
+
+So I've opened 2.3.1 to work on the Python code.
+
+1026.06.17
+
+Branch 2.3 is an exploratory attempt to modify the c code to provide more information than just SNR.
+
+First step is to add stats on frequency.  Should be simple, but the issue of "freq" vs "freq1"
+(single vs multiple xmit freqs) may not be easy to resolve.
+
+More problematic will be to detect packets forming a transmit and keep separate stats on those
+characteristics, as the Py code does.
+

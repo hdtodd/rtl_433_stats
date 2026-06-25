@@ -51,7 +51,7 @@ void stats_print(BSPTR data) {
 //  Appends the value x to the accumulating statistics for the stream
 //    of data values pointed to by (BSTAT *)self
 void stats_append(double x, BSPTR self) {
-  self->count += 1;
+  self->count++;
   self->mean   = ( (double)(self->count - 1) * self->mean + x)/(double)self->count;
   self->std2   = self->count<2 ? 0.0 :
     ( (self->count-2)*self->std2 +

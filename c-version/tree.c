@@ -15,8 +15,10 @@
 #include "stats.h"
 #include "tree.h"
 
+extern time_t timestamp;
+
 char MODULE[] = "tree -- simple binary tree model";
-int node_number = 0;  // may be useful for debugging
+int node_number = 0;  // ID # for quick de-duping
 
 //  Create a new attribute node
 APTR attr_new(void) {
@@ -27,10 +29,10 @@ APTR attr_new(void) {
     exit(EXIT_FAILURE);
   };
   p->pktcount      = 0;
-  p->xmtcount      = 0;
+  p->xmtcount      = 1;
   p->pkt_xmt       = 0;
-  p->last_pkt_time = (time_t) 0x00000000;
-  p->last_xmt_time = (time_t) 0x00000000;
+  p->last_pkt_time = 0;
+  p->last_xmt_time = 0;
   p->snr           = stats_new();
   p->itgt          = stats_new();
   p->freq          = stats_new();
