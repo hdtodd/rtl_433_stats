@@ -66,7 +66,7 @@ options:
 In practice and for log files recorded over long periods, the log file may contain records for devices seen only sporadically: tire pressure monitor systems, security systems, automobile remotes, etc. These may make the report long and difficult to read.  Some options help customize the reports:
 
 *  By default, tire pressure monitoring systems (TPMS) are excluded from reports: use `-T` to _include_ them.
-*  All other devices recorded in the log file(s) are included in the report by default.  Use the `-x n` option to exclude from the report any device with less than `n` packets in the logs (typically n=10 to 100 seem to be most useful).
+*  All other devices recorded in the log file(s) are included in the report by default.  Use the `-x n` option to exclude from the report any device with less than `n` transmissions in the logs (typically n=10 to 100 seem to be most useful).
 *  The default report with all four characteristics is fairly wide.  It can be narrowed by omitting one or more of the characteristics with the `-o` option followed by `SNR`, `ITGT`, `Freq`, and/or `PPT` to specify which reports to omit.
 *  By default, packets broadcast by a single device within a 2-second window are considered to be one transmission.  The `-w n` option, n in seconds, can be used to change that window, affecting the ITGT and PPT reports. 
 

@@ -11,7 +11,7 @@ CC = gcc
 PROJ = snr
 
 BIN = ~/bin/
-#CFLAGS += -O3 
+CFLAGS += -O3 
 #CFLAGS += -D DEBUG
 LDFLAGS = -lm
 OBJS   = snr.o snr-cli.o stats.o tree.o mjson.o

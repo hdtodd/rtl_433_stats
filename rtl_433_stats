@@ -140,8 +140,8 @@ def make_parser():
                         nargs="+")
     parser.add_argument("-x", "--exclude_noise", type=int, dest="noise",
                         help="Exclude device records with fewer than 'NOISE' packets seen")
-    parser.add_argument("-w", "--xmt_window", dest="window", type=float, default=dup_thresh,
-                        help="Max time in sec for a packet group to be considered as one transmission (default: %(default)s)")
+    parser.add_argument("-w", "--xmt_window", dest="window", type=float,
+                        help="Max time in sec for a packet group to be considered as one transmission")
     parser.add_argument("-T", "--include_TPMS", action='store_true',
                         dest="include_TPMS", default=False, 
                         help="Include tire pressure monitors in catalog (default: %(default)s)")
@@ -199,6 +199,7 @@ if args.noise is not None:
     noise = args.noise
 else:
     noise = 0
+
 if args.window is not None:
    print("Using transmission window of", args.window, "sec rather than default", dup_thresh, "sec")
    dup_thresh = args.window
@@ -331,7 +332,7 @@ print()
 # And now the data values from the table
 for d in sorted(devices):
     (pkt, xmt, SNR, ITGT, Freq, PPT) = devices[d].get()
-    if pkt < noise:
+    if xmt < noise:
         continue
     print("{:<30} {:>6} {:>6}".format(d, pkt, xmt), end="")
     if not omitSNR:

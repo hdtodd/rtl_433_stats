@@ -5,6 +5,8 @@
    Modified 2026.06.20 to report more than just SNR data values
 */
 
+#define VERSION "2.3"
+
 #define _XOPEN_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +25,14 @@
 #include "tree.h"
 
 // These are global variables
-time_t dFirst, dLast; // filled by CLI
-char inFileName[60];  // filled by CLI
-int fnLen = 39;
 time_t timestamp;     // timestamp of packet currently being processed
+// These globals are used or filled in by CLI
+time_t dFirst, dLast;
+char inFileName[60];
+char *version = VERSION;
+int noise  = 1;      // Default: report devices with any entries
+int thresh = 2;      // Time in sec between pkts for pkts to be considered duplicates
+bool TPMS  = false;  // Default: don't report tire pressure entries
 
 // External procedure to process command line for parameters
 extern int processCmdLine(int argc, char* argv[]);
@@ -63,21 +69,25 @@ bool device_update(NPTR node, time_t timestamp, int thresh, double snr, double f
 // Print the statistics for the device pointed to by node 'p'
 void node_print(NPTR p) {
   BSPTR s;
-  printf("%-30s %6d %6d ", p->key, (p->attr)->pktcount, (p->attr)->xmtcount);
-  s = (p->attr)->snr;
+  APTR attr;
+
+  attr = p->attr;
+  if (attr->xmtcount < noise) return;
+  printf("%-30s %6d %6d ", p->key, attr->pktcount, attr->xmtcount);
+  s = attr->snr;
   printf("%5.1lf ± %4.1lf %5.1lf  %5.1lf   ",
 	 s->mean, stats_stddev(s), s->min, s->max);
-  s = (p->attr)->freq;
+  s = attr->freq;
   printf("%7.3lf ±  %5.3lf   %7.3lf  %7.3lf  ",
          s->mean, stats_stddev(s), s->min, s->max);
-  s = (p->attr)->itgt;
+  s = attr->itgt;
   printf("%7.1lf ± %6.1lf %7.1lf  %7.1lf    ",
 	 s->mean, stats_stddev(s), s->min, s->max);
-  s = (p->attr)->ppt;
+  s = attr->ppt;
   printf("%4.1lf ±  %3.1lf  %3d  %3d",
 	 s->mean, stats_stddev(s), (int) (s->min + 0.1), (int)(s->max + 0.1));
-
   printf("\n");
+  return;
 };
 
 int main(int argc, char *argv[])
@@ -98,7 +108,6 @@ int main(int argc, char *argv[])
     struct tm tm;
     NPTR root=NULL, node;
     clock_t tic, toc;
-    int thresh=2;  // Time in sec between pkts for pkts to be considered duplicates
     bool dup;
 
     // Local internal vars
@@ -123,7 +132,7 @@ int main(int argc, char *argv[])
 	{"",       t_ignore},
 	{NULL},
     };
-  
+
     printf("\nsnr:\n%s%s%s",
 	   "\tAnalyze rtl_433 JSON logs to catalog the devices seen and to characterize\n",
 	   "\tstatistically their signal-to-noise ratio (SNR), radio frequency (Freq),\n",
@@ -131,6 +140,14 @@ int main(int argc, char *argv[])
 
     // process the command line to retrieve options selected, leave in global vars, open file
     if ( (errCode=processCmdLine(argc, argv)) != 0 ) exit(errCode);
+
+    /*
+    printf("thresh = %d\n", thresh);
+    printf("noise = %d\n", noise);
+    printf("TPMS   = %s\n", (TPMS) ? "true" : "false");
+    exit(0);
+    */
+    
     fp = fopen(inFileName, "r");
     if (!fp) {
       perror(inFileName);
@@ -150,7 +167,7 @@ int main(int argc, char *argv[])
       pc++;  // count records processed
       
       // Ignore tire pressure readings, "TPMS"
-      if (strcmp(type, "TPMS")==0) continue;
+      if (!TPMS && strcmp(type, "TPMS")==0) continue;
 
       // Get to work
       strptime(timestring, "%Y-%m-%d %H:%M:%S", &tm);
