@@ -1,4 +1,9 @@
 2026.06.25
+Created branch 2.3.2.
+Working on formatting of Python & C output.  When finished, merge back
+into 2.3.1 and then 2.3
+
+2026.06.25
 Spent the last day doing a detailed manual analysis of ITGT and PPT for
 Acurite-01185M/0/0 [4 pkts, 4 xmits], Markisol/0/256 [20 pkts, 20 xmits],
 and Acurite-609TXC//194 [8006 pkts, 1357 or 1356 xmits].  The Excel spreadsheet

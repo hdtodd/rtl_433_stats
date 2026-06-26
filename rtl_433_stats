@@ -28,8 +28,8 @@ dup_thresh = 2.0
 
 AP_DESCRIPTION="""
 \tAnalyze rtl_433 JSON logs to catalog the devices seen and to characterize
-\tstatistically their signal-to-noise ratio (SNR), times between
-\ttransmissions (ITGT), radio frequency (Freq), and packets per transmission (PPT).
+\tstatistically their signal-to-noise ratio (SNR), radio frequency (Freq),
+\ttimes between transmissions (ITGT), and packets per transmission (PPT).
 """
 
 AP_EPILOG="""
@@ -181,7 +181,7 @@ def CnvTime(ts):
 # main program
 start_time = time.process_time()
 
-print("rtl_433_stats:", AP_DESCRIPTION)
+print("\nrtl_433_stats:", AP_DESCRIPTION)
 
 args = make_parser()
 omitSNR  =  args.omit is not None and "SNR"  in args.omit
@@ -194,11 +194,6 @@ lastTime  = 0.0
 DDTC = 0
 devices = {}
 
-print("Processing ISM 433MHz messages recorded by rtl_433")
-print("Including" if not omitSNR  else "Excluding", "SNR Stats")
-print("Including" if not omitITGT else "Excluding", "ITGT Stats")
-print("Including" if not omitFreq else "Excluding", "Freq Stats")
-print("Including" if args.include_TPMS else "Excluding", "TPMS devices")
 if args.noise is not None:
     print("Excluding devices with fewer than", args.noise, "packets seen")
     noise = args.noise
@@ -213,7 +208,11 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
 #open(args.fn,"rt") as log:
     for line in log:
         if log.isfirstline():
-           print("Processing file", log.filename())
+           print("Processing ISM messages recorded by rtl_433 from file", log.filename())
+           print("Including" if not omitSNR  else "Excluding", "SNR Stats")
+           print("Including" if not omitITGT else "Excluding", "ITGT Stats")
+           print("Including" if not omitFreq else "Excluding", "Freq Stats")
+           print("Including" if args.include_TPMS else "Excluding", "TPMS devices")
         lc += 1
         # strip any NUL chars from the line
         line = str.replace(line, "\x00", "", -1)
@@ -304,7 +303,7 @@ if not omitFreq:
 if not omitITGT:
     print("   {:^33}".format("Inter-Transmission Gap Time (sec)"), end="")
 if not omitPPT:
-    print("{:^33} ".format("Packets per Transmit"), end="")
+    print("    {:<20} ".format("Packets per Transmit"), end="")
 print()
 
 print("{:<46}".format(""), end="")
@@ -315,7 +314,7 @@ if not omitFreq:
 if not omitITGT:
     print("  {:>33} ".format("_"*33), end="")
 if not omitPPT:
-    print("   {:>25}".format("_"*25), end="")
+    print("   {:>21}".format("_"*21), end="")
 print()
 print("{:<30} {:>6} {:>6}".format("Device model/channel/id", "#Pkts", "#Xmits"), end="")
 
@@ -326,7 +325,7 @@ if not omitFreq:
 if not omitITGT:
     print("    {:>13}    {:>5}    {:>5}".format("Mean  ±     𝜎", "Min", "Max"), end="")
 if not omitPPT:
-    print("    {:>5}   {:>5}  {:>5}".format("Mean ±   𝜎", "Min", "Max"), end="")
+    print("    {:>5} {:>5}{:>5}".format("Mean ±   𝜎", "Min", "Max"), end="")
 print()
 
 # And now the data values from the table
@@ -352,7 +351,7 @@ for d in sorted(devices):
             (n,avg,std,min,max) = PPT.get()
         else:
             (n,avg,std,min,max) = (0,0.,0.,0.,0.)
-        print("  {:>6.1f} ± {:>4.1f}  {:>5.0f}  {:>5.0f}".format(avg,std,min,max), end="")
+        print("  {:>6.1f} ± {:>4.1f}  {:>3.0f}  {:>3.0f}".format(avg,std,min,max), end="")
     print()
 
 sys.exit(0)

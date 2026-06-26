@@ -63,18 +63,18 @@ bool device_update(NPTR node, time_t timestamp, int thresh, double snr, double f
 // Print the statistics for the device pointed to by node 'p'
 void node_print(NPTR p) {
   BSPTR s;
-  printf("%-30s%6d %6d ", p->key, (p->attr)->pktcount, (p->attr)->xmtcount);
+  printf("%-30s %6d %6d ", p->key, (p->attr)->pktcount, (p->attr)->xmtcount);
   s = (p->attr)->snr;
   printf("%5.1lf ± %4.1lf %5.1lf  %5.1lf   ",
 	 s->mean, stats_stddev(s), s->min, s->max);
   s = (p->attr)->freq;
-  printf("%7.3lf ± %5.3lf   %7.3lf  %7.3lf    ",
+  printf("%7.3lf ±  %5.3lf   %7.3lf  %7.3lf  ",
          s->mean, stats_stddev(s), s->min, s->max);
   s = (p->attr)->itgt;
-  printf("%7.1lf ± %6.1lf %7.1lf  %7.1lf   ",
+  printf("%7.1lf ± %6.1lf %7.1lf  %7.1lf    ",
 	 s->mean, stats_stddev(s), s->min, s->max);
   s = (p->attr)->ppt;
-  printf("%4.1lf ± %3.1lf %3d  %3d",
+  printf("%4.1lf ±  %3.1lf  %3d  %3d",
 	 s->mean, stats_stddev(s), (int) (s->min + 0.1), (int)(s->max + 0.1));
 
   printf("\n");
@@ -199,18 +199,24 @@ int main(int argc, char *argv[])
     strftime(ft,sizeof(ft),"%a %Y-%m-%d %H:%M:%S", &ts);
     ts = *localtime(&latestDTS);
     strftime(lt,sizeof(lt),"%a %Y-%m-%d %H:%M:%S", &ts);
-    printf("\nProcessed %d Packets as %d De-Duplicated Transmissions in %7.3lf sec\n",
+    printf("\nProcessed %d Packets as %d De-Duplicated Transmissions in %6.3lf sec \n",
 	   pc, tc, ( (double) (toc-tic) / CLOCKS_PER_SEC) );
-    printf("Packets Dated from %s to %s\n\n",ft, lt);
-    printf("%-38s              Signal-to-Noise", " ");
-    printf("%-15s Frequency (MHz)", " ");
+    printf("Packets dated from %s to %s\n\n",ft, lt);
+    printf("%50sSignal-to-Noise", " ");
+    printf("%17sFrequency (MHz)", " ");
+    printf("%13sInter-Transmission Gap Time (sec)", " ");
+    printf("%4sPackets per Transmit ", " ");
     printf("\n");
-    printf("%-38s       ________________________", " ");
-    printf("%-2s __________________________________", " ");
+    printf("%46s________________________", " ");
+    printf("%3s___________________________________", " ");
+    printf("%2s_________________________________", " ");
+    printf("%4s_____________________", " ");
     printf("\n");
-    printf("%-30s%6s %6s  ", "Device","#Pkts", "#Xmits");
+    printf("%-30s %6s %6s  ", "Device model/channel/id","#Pkts", "#Xmits");
     printf("%-14s %6s %6s   ",  "Mean ±   𝜎", "Min", "Max");
-    printf("%14s     %6s  %6s  ", "Mean    ±  𝜎   ", "Min ", "Max");
+    printf("%-14s     %6s  %6s  ", "Mean    ±   𝜎   ", "Min ", "Max");
+    printf("  %s      %s      %s   ",  "Mean  ±     𝜎", "Min", "Max");
+    printf(" %s   %s  %s",  "Mean ±   𝜎", "Min", "Max");
     printf("\n");
     tree_process(root, &node_print);
 
