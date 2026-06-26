@@ -140,11 +140,11 @@ def make_parser():
                         nargs="+")
     parser.add_argument("-x", "--exclude_noise", type=int, dest="noise",
                         help="Exclude device records with fewer than 'NOISE' packets seen")
-    parser.add_argument("-w", "--xmt_window", dest="window", type=float,
+    parser.add_argument("-w", "--xmt_window", dest="window", type=float, default=dup_thresh,
                         help="Max time in sec for a packet group to be considered as one transmission (default: %(default)s)")
     parser.add_argument("-T", "--include_TPMS", action='store_true',
                         dest="include_TPMS", default=False, 
-                        help="include tire pressure monitors in catalog (default: %(default)s)")
+                        help="Include tire pressure monitors in catalog (default: %(default)s)")
     parser.add_argument("-v", "--version", action="version", version=VERSION)
 
     args = parser.parse_args()
