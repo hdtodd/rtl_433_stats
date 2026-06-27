@@ -7,7 +7,7 @@ Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 * read the recorded packet information from the log file(s),
 * catalog all devices recorded in the log(s),
 * count the packets and consolidate redundant packets into individual transmissions, 
-* summarize the statistics about packet signal-to-noise ratios (SNR) and radio frequencies (Freq), the gap times between transmissions (ITGT), and the packets per transmission (PPT). 
+* summarize the statistics about packet signal-to-noise ratios (SNR) and radio frequencies, the gap times between transmissions (ITGT), and the packets per transmission (PPT). 
 
 The observed devices, as recorded in the JSON file in temporal order, are cataloged in alphabetical order in a summary table.  The summary includes a count of the number of packets and de-duplicated transmissions seen for that device and basic statistics for each device of the signal-to-noise-ratios, transmission frequency, inter-transmission-gap-time (in seconds), and packets-per-transmission.  The statistics include:
 
@@ -19,14 +19,15 @@ The observed devices, as recorded in the JSON file in temporal order, are catalo
 Sample output looks like this:
 
 ```
+
 snr:
 	Analyze rtl_433 JSON logs to catalog the devices seen and to characterize
 	statistically their signal-to-noise ratio (SNR), radio frequency (Freq),
 	times between transmissions (ITGT), and packets per transmission (PPT).
 
-Processing ISM messages recorded by rtl_433 from file xaa.json
+Processing ISM messages recorded by rtl_433 from file ../xaa.json
 
-Processed 20000 Packets as 6954 De-Duplicated Transmissions in  0.098 sec 
+Processed 20000 Packets as 6952 De-Duplicated Transmissions in  0.096 sec 
 Packets dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
 
                                                   Signal-to-Noise                 Frequency (MHz)             Inter-Transmission Gap Time (sec)    Packets per Transmit 
@@ -36,8 +37,6 @@ Acurite-01185M/0/0                  4      4   9.6 ±  4.9   6.4   16.9   433.91
 Acurite-606TX//134                858    858   8.4 ±  2.1   5.5   20.0   433.901 ±  0.009   433.863  433.962     53.0 ±  139.2    30.0   2573.0     1.0 ±  0.0    1    1
 Acurite-609TXC//194              8006   1357  19.3 ±  0.5  12.3   21.2   433.931 ±  0.002   433.922  433.950     33.5 ±    0.7    33.0     49.0     5.9 ±  0.4    2    6
 Acurite-Tower/A/11524            8203   2753  19.2 ±  0.5  13.2   20.8   433.950 ±  0.002   433.926  433.955     16.5 ±    2.5    15.0     33.0     3.0 ±  0.2    1    3
-Hyundai-VDO//60b87768               1      1  11.0 ±  0.0  11.0   11.0   433.949 ±  0.000   433.949  433.949      0.0 ±    0.0     inf     -inf     0.0 ±  0.0  2147483647  -2147483648
-Hyundai-VDO//aeba4a98               1      1   7.2 ±  0.0   7.2    7.2   433.951 ±  0.000   433.951  433.951      0.0 ±    0.0     inf     -inf     0.0 ±  0.0  2147483647  -2147483648
 LaCrosse-TX141Bv3/1/253           597    348   8.4 ±  1.3   5.7   19.2   433.904 ±  0.003   433.863  433.945    109.9 ±  338.9    31.0   4216.0     1.7 ±  0.5    1    2
 LaCrosse-TX141THBv2/0/168        1536    838   9.6 ±  1.1   6.0   19.2   433.961 ±  0.004   433.862  433.966     54.2 ±   14.7    49.0    150.0     1.8 ±  0.4    1    2
 Markisol/0/0                       39     39  19.1 ±  1.2  12.3   20.2   433.932 ±  0.002   433.928  433.936   1053.5 ± 1532.1    33.0   6633.0     1.0 ±  0.0    1    1
@@ -49,7 +48,7 @@ Prologue-TH/2/203                 699    699  11.6 ±  1.3   7.2   19.5   433.86
 
 ## Use
 
-Issue the command `snr -i <JSON filename>` to generate the report; `snr -h` shows the command-line options:
+Issue the command `./snr -i <JSON filename>` to generate the report; `./snr -h` shows the command-line options:
 
 ```
 snr:
@@ -77,39 +76,48 @@ In practice and for log files recorded over long periods, the log file may conta
 *  All other devices recorded in the log file(s) are included in the report by default.  Use the `-x n` option to exclude from the report any device with less than `n` transmissions in the logs (typically n=10 to 100 seem to be most useful).
 *  By default, packets broadcast by a single device within a 2-second window are considered to be one transmission.  The `-w n` option, n in seconds, can be used to change that window, affecting the ITGT and PPT reports. 
 
-## Details
+## Operational Details
 
-`snr` reads the JSON log file created by rtl\_433 (recommend to stop rtl_433 so that the JSON log file is closed for processing).  Each line of the JSON file represents one packet, and the values of signal-to-noise-ratio (SNR) and transmission frequency for each packet are included in the overall summary for each individual device.
+`snr` reads the JSON log file created by rtl\_433 (recommend to stop rtl_433 so that the JSON log file is closed for processing).  Each line of the JSON file represents one packet, and the values of signal-to-noise-ratio (SNR) and transmission frequency for each packet are included in the overall summary for each individual device.  Devices are identified by a key string composed from information from the JSON records.  The key string has the form "model"/"channel"/"id", where the individual components are the values taken from the JSON record.
 
-Devices are identified by a key string composed from information from the JSON records.  The identifier has the form `model/channel/id`, where the individual components are the values taken from the JSON record.
+The observed devices, as recorded in the JSON file in temporal order, are cataloged in alphabetical order in a summary table along with a count of the number of packets and de-duplicated transmissions seen for that device and with basic statistics
 
-Devices may transmit 1 to 6 or more packets for one reading -- the redundant packets are transmitted to increase the probability that at least one packet might be received correctly over competing noise. `snr` builds a catalog of devices and transmission times and groups packets into individual transmissions based on the time between packets (default is 2 sec for receipt of all packets for an individual transmission).  `snr` then computes the statistics for the transmissions (ITGT and PPT).
+* mean,
+* std deviation,
+* min value seen, and
+* max value seen
 
-`snr` reports statistics for SNR and frequency for all packets and statistics for inter-transmission-gap-times and packets-per-transmission for each transmission .  A packet is considered a duplicate within one transmission if the concatenated device identifier string is repeated within (the default) 2 seconds for that device.
+for these device characteristics:
+
+* signal-to-noise ratio (SNR) over all packets from that device,
+* radio frequency of transmissions over all packets from that device,
+* inter-transmission gap times (ITGT): the time in seconds between successive transmissions by that device, and
+* the number of packets per transmission (PPT).
+
+A device "transmission" represents one observation but may contain 1 to 6 or more "packets" that contain duplicates of the data values.  Transmissions are frequently initiated by remote sensor devices at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.  `snr` builds a catalog of devices as it processes the file; it updates statistics for SNR and frequency as it processes individual packets; and it groups packets into individual transmissions based on the time between packets (default is 2 sec for receipt of all packets for an individual transmission) and updates transmission statistics. 
 
 JSON log times are expected to be in the format "HH:MM:SS", to the nearest second with no fractional part. The option to use Unix Epoch date-time format is not supported (check the Python version if you need that).
 
-
 ## Installation
 
-1. Connect to the `c-version` directory and `make` and then `make install`.  Note that this installs the *snr* executable into `~/bin`; edit `Makefile`'s definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory rather than install.
-2. Assuming that `~/bin/` is in your path or that you execute from the download directory, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, `snr -f ../xaa.json` and compare with the sample `xaa-output.prn` file distributed with the package to verify correct operation.
+1. Connect to the `c-version` directory and `make` and then `make install`.  Note that this installs the *snr* executable into `~/bin`; edit  the`Makefile` definition of `BIN` if you want the code installed elsewhere, or simply execute the programs from the download directory rather than install.
+2. Assuming that `~/bin/` is in your path or that you execute from the download directory, you may then process JSON log files.  For example, to process the `xaa.json` file that is distributed with the package, `./snr -i ../xaa.json` and compare with the sample `xaa-output.prn` file distributed with the package to verify correct operation.
 
 ## Dependencies
-This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON file and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
+This code uses Eric Raymond's mjson.c library to parse the rtl_433 JSON records and would not have been possible without it: that code is included in this distribution.  One slight modification to Raymond's distributed code was needed to accommodate model values that were sometimes numeric and sometimes quoted strings; that modification is noted in the mjson.c file included in this distribution.
 
 ## Notes
 This C-code version duplicates much of what the Python version does, except that it does not allow for selecting which characteristics will be displayed (as the Python version does).  Output is formatted much like the Python version output, and test output from the two versions from the data file `xaa.json` yield identical statistics tables.
 
 The C code does have the additional feature of allowing selection of a date-time range (`-s` and `-e`), which the Python code does not offer.
 
-The C version was developed with the expectation that it would execute much faster than the Python version.  In fact, it is much slower, even with -O3 optimization.  If you have Python installed on your system, it would likely be better to run that version.  This C version is provided for those who don't run Python or who want date-time range selection.
+The C version was developed with the expectation that it would execute much faster than the Python version.  In fact, it is much slower, even with `-O3` optimization.  If you have Python installed on your system, it would likely be better to run that version.  This C version is provided for those who don't run Python or who want date-time range selection.
 
 ## Release History
 
 | Version | Date    | Changes |
 |---------|---------|---------|
-| V2.3.0  | 2026.06 | Add frequency, ITGT, and PPT  to the table of summarized data; for multi-frequency devices that don't report "freq", use "freq1" if reported |
+| V2.3.0  | 2026.06 | Add frequency, ITGT, and PPT  to the table of summarized data; for multi-frequency devices that don't report "freq", use "freq1" if reported.  Format output to match that from the Python version. |
 | V2.1    | 2023.04 | Complete documentation and full version |
 | V1.0    | 2022.05 | First operational version. |
 
