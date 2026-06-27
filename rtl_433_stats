@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # rtl_433_stats
-VERSION="2.2.0"
+VERSION="2.3.0"
 
 # Program to catalog devices seen by rtl_433 and  to analyze and summarize
 #   device performance data.
@@ -28,8 +28,8 @@ dup_thresh = 2.0
 
 AP_DESCRIPTION="""
 \tAnalyze rtl_433 JSON logs to catalog the devices seen and to characterize
-\tstatistically their signal-to-noise ratio (SNR), times between
-\ttransmissions (ITGT), radio frequency (Freq), and packets per transmission (PPT).
+\tstatistically their signal-to-noise ratio (SNR), radio frequency (Freq),
+\ttimes between transmissions (ITGT), and packets per transmission (PPT).
 """
 
 AP_EPILOG="""
@@ -68,7 +68,7 @@ class stats():
 class Data:
     def __init__(self, snr, eTime, freq, battery, status):
         self.pktcount = 1
-        self.xmtcount = 0
+        self.xmtcount = 1
         self.pkt_xmt  = 1
         self.last_pkt_time = eTime
         self.last_xmt_time = eTime
@@ -84,10 +84,12 @@ class Data:
     #  flag to indicate if it was a duplicate record for this xmit
     def update(self, snr, eTime, freq, battery, status):
         self.pktcount += 1
-        self.last_pkt_time = eTime
         dup = eTime < self.last_xmt_time + dup_thresh
+        self.last_pkt_time = eTime
         if not omitSNR:
             self.SNR.append(snr)
+        if not omitFreq:
+            self.Freq.append(freq)
         if not omitITGT and not dup:
             if self.ITGT is None:
                 self.ITGT = stats(eTime-self.last_xmt_time)
@@ -95,9 +97,6 @@ class Data:
                 self.ITGT.append(eTime-self.last_xmt_time)
             self.last_xmt_time = eTime
             self.xmtcount += 1
-            self.last_xmt_time = eTime
-        if not omitFreq:
-            self.Freq.append(freq)
         if not omitPPT:
             if not dup:
                 if self.PPT is None:
@@ -128,7 +127,7 @@ class Data:
                 self.PPT)
 
 ##########################################################################################
-#  Routine to reate the command parser, parse cmd line,  and set defaults
+#  Routine to create the command parser, parse cmd line, and set defaults
 def make_parser():
     
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -142,10 +141,10 @@ def make_parser():
     parser.add_argument("-x", "--exclude_noise", type=int, dest="noise",
                         help="Exclude device records with fewer than 'NOISE' packets seen")
     parser.add_argument("-w", "--xmt_window", dest="window", type=float,
-                        help="Max time in sec for a packet group to be considered as one transmission (default: %(default)s)")
+                        help="Max time in sec for a packet group to be considered as one transmission")
     parser.add_argument("-T", "--include_TPMS", action='store_true',
                         dest="include_TPMS", default=False, 
-                        help="include tire pressure monitors in catalog (default: %(default)s)")
+                        help="Include tire pressure monitors in catalog (default: %(default)s)")
     parser.add_argument("-v", "--version", action="version", version=VERSION)
 
     args = parser.parse_args()
@@ -182,7 +181,7 @@ def CnvTime(ts):
 # main program
 start_time = time.process_time()
 
-print("rtl_433_stats:", AP_DESCRIPTION)
+print("\nrtl_433_stats:", AP_DESCRIPTION)
 
 args = make_parser()
 omitSNR  =  args.omit is not None and "SNR"  in args.omit
@@ -195,18 +194,14 @@ lastTime  = 0.0
 DDTC = 0
 devices = {}
 
-print("Processing ISM 433MHz messages recorded by rtl_433")
-print("Including" if not omitSNR  else "Excluding", "SNR Stats")
-print("Including" if not omitITGT else "Excluding", "ITGT Stats")
-print("Including" if not omitFreq else "Excluding", "Freq Stats")
-print("Including" if args.include_TPMS else "Excluding", "TPMS devices")
 if args.noise is not None:
     print("Excluding devices with fewer than", args.noise, "packets seen")
     noise = args.noise
 else:
     noise = 0
+
 if args.window is not None:
-   print("Using transmission window of", args.window, "sec rather than deafult", dup_thresh, "sec")
+   print("Using transmission window of", args.window, "sec rather than default", dup_thresh, "sec")
    dup_thresh = args.window
 
 lc = 0                # line count, for error reporting
@@ -214,7 +209,11 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
 #open(args.fn,"rt") as log:
     for line in log:
         if log.isfirstline():
-           print("Processing file", log.filename())
+           print("Processing ISM messages recorded by rtl_433 from file", log.filename())
+           print("Including" if not omitSNR  else "Excluding", "SNR Stats")
+           print("Including" if not omitITGT else "Excluding", "ITGT Stats")
+           print("Including" if not omitFreq else "Excluding", "Freq Stats")
+           print("Including" if args.include_TPMS else "Excluding", "TPMS devices")
         lc += 1
         # strip any NUL chars from the line
         line = str.replace(line, "\x00", "", -1)
@@ -291,69 +290,69 @@ with fileinput.FileInput(files=args.input, openhook=fileinput.hook_compressed) a
                  
 # Finished processing log files; write summary report
 print("\nProcessed", lc, "Packets as", DDTC, "De-Duplicated Transmissions",
-      "in {:>5.2f}sec".format(time.process_time()-start_time),
+      "in {:>6.3f} sec".format(time.process_time()-start_time),
       "\nPackets dated from",time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(firstTime)),
        "to", time.strftime("%a %Y-%m-%d %H:%M:%S",time.localtime(lastTime)))
 print()
 
 # First, the header, dependent upon cmdline options
-print("{:<30} ".format(""), end="")
+print("{:<44} ".format(""), end="")
 if not omitSNR:
-    print("{:^36}  ".format("Signal-to-Noise"), end="")
-if not omitITGT:
-    print("{:^36}".format("Inter-Transmission Gap Time"), end="")
+    print("{:^25}".format("Signal-to-Noise"), end="")
 if not omitFreq:
-    print("    {:^40}".format("Frequency (MHz)"), end="")
-if not omitPPT:
-    print("    {:^36}  ".format("Packets per Transmit"), end="")
-print()
-print("{:<30} ".format("Device model/channel/id"), end="")
-
-if not omitSNR:
-    print("{:>33} ".format("_"*33), end="")
+    print("  {:^35}".format("Frequency (MHz)"), end="")
 if not omitITGT:
-    print(" {:>40} ".format("_"*39), end="")
-if not omitFreq:
-    print("  {:>44}".format("_"*44), end="")
+    print("   {:^33}".format("Inter-Transmission Gap Time (sec)"), end="")
 if not omitPPT:
-    print("   {:>36}".format("_"*36), end="")
+    print("    {:<20} ".format("Packets per Transmit"), end="")
 print()
 
-print("{:<30} ".format(""), end="")
+print("{:<46}".format(""), end="")
 if not omitSNR:
-    print("{:>6} {:>8}  {:>5}  {:>5}".format("#Pkts", "  Mean ±   𝜎", "Min", "Max"), end="")
-if not omitITGT:
-    print("  {:>7}    {:>13}   {:>5}   {:>5}".format(" #Gaps", "Mean  ±     𝜎", "Min", "Max"), end="")
+    print("{:>24} ".format("_"*24), end="")
 if not omitFreq:
-    print("  {:>7}     {:>5}        {:>5}    {:>5}".format(" #Pkts", "Mean  ±   𝜎", "Min", "Max"), end="")
+    print("  {:>35}".format("_"*35), end="")
+if not omitITGT:
+    print("  {:>33} ".format("_"*33), end="")
 if not omitPPT:
-    print("   {:>7}    {:>5}   {:>5}  {:>5}".format("#Xmits", "Mean ±   𝜎", "Min", "Max"), end="")
-print()        
+    print("   {:>21}".format("_"*21), end="")
+print()
+print("{:<30} {:>6} {:>6}".format("Device model/channel/id", "#Pkts", "#Xmits"), end="")
+
+if not omitSNR:
+    print("{:>8}  {:>5}  {:>5}".format("  Mean ±   𝜎", "Min", "Max"), end="")
+if not omitFreq:
+    print("   {:>5}        {:>5}    {:>5}".format("Mean    ±   𝜎", "Min", "Max"), end="")
+if not omitITGT:
+    print("    {:>13}    {:>5}    {:>5}".format("Mean  ±     𝜎", "Min", "Max"), end="")
+if not omitPPT:
+    print("    {:>5} {:>5}{:>5}".format("Mean ±   𝜎", "Min", "Max"), end="")
+print()
 
 # And now the data values from the table
 for d in sorted(devices):
     (pkt, xmt, SNR, ITGT, Freq, PPT) = devices[d].get()
-    if pkt < noise:
+    if xmt < noise:
         continue
-    print("{:<30}".format(d), end="")
+    print("{:<30} {:>6} {:>6}".format(d, pkt, xmt), end="")
     if not omitSNR:
         (n,avg,std,min,max) = SNR.get()
-        print("{:>7} {:>6.1f} ±{:>5.1f} {:>5.1f}  {:>5.1f}".format(n,avg,std,min,max), end="")
+        print("{:>6.1f} ±{:>5.1f} {:>5.1f}  {:>5.1f}".format(avg,std,min,max), end="")
+    if not omitFreq:
+        (n,avg,std,min,max) = Freq.get()
+        print("  {:>8.3f} ± {:>6.3f}  {:>8.3f} {:>8.3f}".format(avg,std,min,max), end="")
     if not omitITGT:
         if ITGT is not None:
            (n,avg,std,min,max) = ITGT.get()
         else:
            (n,avg,std,min,max) = (0,0.,0.,0.,0.)
-        print("  {:>7} {:>7.1f}s ± {:>6.1f}  {:>5.1f} {:>7.1f}".format(n,avg,std,min,max), end="")
-    if not omitFreq:
-        (n,avg,std,min,max) = Freq.get()
-        print("  {:>7}  {:>8.3f} ± {:>6.3f}  {:>8.3f} {:>8.3f}".format(n,avg,std,min,max), end="")
+        print("  {:>7.1f} ± {:>6.1f}  {:>6.1f} {:>8.1f}".format(avg,std,min,max), end="")
     if not omitPPT:
         if PPT is not None:
             (n,avg,std,min,max) = PPT.get()
         else:
             (n,avg,std,min,max) = (0,0.,0.,0.,0.)
-        print("   {:>7}  {:>6.1f} ± {:>4.1f}  {:>5.0f}  {:>5.0f}".format(n,avg,std,min,max), end="")
+        print("  {:>6.1f} ± {:>4.1f}  {:>3.0f}  {:>3.0f}".format(avg,std,min,max), end="")
     print()
 
 sys.exit(0)

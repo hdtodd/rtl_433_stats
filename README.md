@@ -1,4 +1,4 @@
-# rtl\_433\_stats v2.2.1
+# rtl\_433\_stats v2.3.0
 Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 
 ## Function
@@ -9,32 +9,44 @@ Catalog and analyze transmissions from devices recorded in rtl_433 JSON logs
 * count the packets and consolidate redundant packets into individual transmissions, 
 * summarize the statistics about packet signal-to-noise ratios (SNR) and radio frequencies (Freq), the gap times between transmissions (ITGT), and the packets per transmission (PPT). 
   
+The observed devices, as recorded in the JSON file in temporal order, are cataloged in alphabetical order in a summary table.  The summary includes a count of the number of packets and de-duplicated transmissions seen for that device and basic statistics for each device of the signal-to-noise-ratios, transmission frequency, inter-transmission-gap-time (in seconds), and packets-per-transmission.  The statistics include:
+
+* mean,
+* std deviation,
+* min value seen, and
+* max value seen.
+
 Sample output looks like this:
 
 ```
-Processing ISM 433MHz messages recorded by rtl_433
+rtl_433_stats: 
+	Analyze rtl_433 JSON logs to catalog the devices seen and to characterize
+	statistically their signal-to-noise ratio (SNR), radio frequency (Freq),
+	times between transmissions (ITGT), and packets per transmission (PPT).
+
+Processing ISM messages recorded by rtl_433 from file xaa.json
 Including SNR Stats
 Including ITGT Stats
 Including Freq Stats
 Excluding TPMS devices
-Processing file xaa.json
 
-Processed 20000 Packets as 6952 De-Duplicated Transmissions in  0.22sec 
+Processed 20000 Packets as 6952 De-Duplicated Transmissions in  0.116 sec 
 Packets dated from Thu 2022-06-09 07:08:27 to Thu 2022-06-09 19:46:16
 
-                                         Signal-to-Noise                 Inter-Transmission Gap Time                     Frequency (MHz)                         Packets per Transmit          
-Device model/channel/id        _________________________________   _______________________________________   ____________________________________________   ____________________________________
-                                #Pkts   Mean ±   𝜎    Min    Max    #Gaps    Mean  ±     𝜎     Min     Max    #Pkts     Mean  ±   𝜎          Min      Max    #Xmits    Mean ±   𝜎     Min    Max
-Acurite-01185M/0/0                  4    9.6 ±  4.9   6.4   16.9        3  3678.7s ± 2812.7  434.0  5425.0        4   433.911 ±  0.017   433.902  433.936         3     1.0 ±  0.0      1      1
-Acurite-606TX//134                858    8.4 ±  2.1   5.5   20.0      857    53.0s ±  139.2   30.0  2573.0      858   433.901 ±  0.009   433.863  433.962       857     1.0 ±  0.0      1      1
-Acurite-609TXC//194              8006   19.3 ±  0.5  12.3   21.2     1356    33.5s ±    0.7   33.0    49.0     8006   433.931 ±  0.002   433.922  433.950      1356     5.9 ±  0.4      2      6
-Acurite-Tower/A/11524            8203   19.2 ±  0.5  13.2   20.8     2752    16.5s ±    2.5   15.0    33.0     8203   433.950 ±  0.002   433.926  433.955      2752     3.0 ±  0.2      1      3
-LaCrosse-TX141Bv3/1/253           597    8.4 ±  1.3   5.7   19.2      347   109.9s ±  338.9   31.0  4216.0      597   433.904 ±  0.003   433.863  433.945       347     1.7 ±  0.5      1      2
-LaCrosse-TX141THBv2/0/168        1536    9.6 ±  1.1   6.0   19.2      837    54.2s ±   14.7   49.0   150.0     1536   433.961 ±  0.004   433.862  433.966       837     1.8 ±  0.4      1      2
-Markisol/0/0                       39   19.1 ±  1.2  12.3   20.2       38  1053.5s ± 1532.1   33.0  6633.0       39   433.932 ±  0.002   433.928  433.936        38     1.0 ±  0.0      1      1
-Markisol/0/256                     20   19.3 ±  0.4  18.5   20.2       19  2108.7s ± 3625.7   33.0 14070.0       20   433.931 ±  0.002   433.927  433.936        19     1.0 ±  0.0      1      1
-Markisol/1/0                       36   19.2 ±  0.5  17.6   20.0       35  1009.8s ± 1550.0   67.0  6801.0       36   433.931 ±  0.002   433.927  433.934        35     1.0 ±  0.0      1      1
-Prologue-TH/2/203                 699   11.6 ±  1.3   7.2   19.5      698    64.9s ±   32.7   52.0   477.0      699   433.864 ±  0.008   433.859  433.943       698     1.0 ±  0.0      1      1
+                                                  Signal-to-Noise                 Frequency (MHz)             Inter-Transmission Gap Time (sec)    Packets per Transmit 
+                                              ________________________   ___________________________________  _________________________________    _____________________
+Device model/channel/id         #Pkts #Xmits  Mean ±   𝜎    Min    Max   Mean    ±   𝜎          Min      Max    Mean  ±     𝜎      Min      Max    Mean ±   𝜎   Min  Max
+Acurite-01185M/0/0                  4      4   9.6 ±  4.9   6.4   16.9   433.911 ±  0.017   433.902  433.936   3678.7 ± 2812.7   434.0   5425.0     1.0 ±  0.0    1    1
+Acurite-606TX//134                858    858   8.4 ±  2.1   5.5   20.0   433.901 ±  0.009   433.863  433.962     53.0 ±  139.2    30.0   2573.0     1.0 ±  0.0    1    1
+Acurite-609TXC//194              8006   1357  19.3 ±  0.5  12.3   21.2   433.931 ±  0.002   433.922  433.950     33.5 ±    0.7    33.0     49.0     5.9 ±  0.4    2    6
+Acurite-Tower/A/11524            8203   2753  19.2 ±  0.5  13.2   20.8   433.950 ±  0.002   433.926  433.955     16.5 ±    2.5    15.0     33.0     3.0 ±  0.2    1    3
+LaCrosse-TX141Bv3/1/253           597    348   8.4 ±  1.3   5.7   19.2   433.904 ±  0.003   433.863  433.945    109.9 ±  338.9    31.0   4216.0     1.7 ±  0.5    1    2
+LaCrosse-TX141THBv2/0/168        1536    838   9.6 ±  1.1   6.0   19.2   433.961 ±  0.004   433.862  433.966     54.2 ±   14.7    49.0    150.0     1.8 ±  0.4    1    2
+Markisol/0/0                       39     39  19.1 ±  1.2  12.3   20.2   433.932 ±  0.002   433.928  433.936   1053.5 ± 1532.1    33.0   6633.0     1.0 ±  0.0    1    1
+Markisol/0/256                     20     20  19.3 ±  0.4  18.5   20.2   433.931 ±  0.002   433.927  433.936   2108.7 ± 3625.7    33.0  14070.0     1.0 ±  0.0    1    1
+Markisol/1/0                       36     36  19.2 ±  0.5  17.6   20.0   433.931 ±  0.002   433.927  433.934   1009.8 ± 1550.0    67.0   6801.0     1.0 ±  0.0    1    1
+Prologue-TH/2/203                 699    699  11.6 ±  1.3   7.2   19.5   433.864 ±  0.008   433.859  433.943     64.9 ±   32.7    52.0    477.0     1.0 ±  0.0    1    1
+
 ```
 
 ## Use
@@ -65,8 +77,8 @@ options:
 ```
 In practice and for log files recorded over long periods, the log file may contain records for devices seen only sporadically: tire pressure monitor systems, security systems, automobile remotes, etc. These may make the report long and difficult to read.  Some options help customize the reports:
 
-*  By default, tire pressure monitoring systems (TPMS) are excluded from reports: use `-T` to _include_ them.
-*  All other devices recorded in the log file(s) are included in the report by default.  Use the `-x n` option to exclude from the report any device with less than `n` packets in the logs (typically n=10 to 100 seem to be most useful).
+*  By default, tire pressure monitoring systems (TPMS) are _excluded_ from reports: use `-T` to _include_ them.
+*  All other devices recorded in the log file(s) are included in the report by default.  Use the `-x n` option to exclude from the report any device with less than `n` transmissions in the logs (typically n=10 to 100 seem to be most useful).
 *  The default report with all four characteristics is fairly wide.  It can be narrowed by omitting one or more of the characteristics with the `-o` option followed by `SNR`, `ITGT`, `Freq`, and/or `PPT` to specify which reports to omit.
 *  By default, packets broadcast by a single device within a 2-second window are considered to be one transmission.  The `-w n` option, n in seconds, can be used to change that window, affecting the ITGT and PPT reports. 
 
@@ -74,9 +86,10 @@ If you've configured `logrotate` to compress and archive your `rtl_433` log file
 
 ## Operational Details
 
-`rtl_433_stats` reads the JSON log file created by rtl\_433 (recommend to stop rtl_433 so that the JSON log file is closed for processing). The observed devices, as recorded in the JSON file in temporal order, are cataloged in alphabetical order in a summary table along with a count of the number of packets and de-duplicated transmissions seen for that device and with basic statistics for that device:
+`rtl_433_stats` reads the JSON log file created by rtl\_433 (recommend to stop rtl_433 so that the JSON log file is closed for processing).  Each line of the JSON file represents one packet, and the values of signal-to-noise-ratio (SNR) and transmission frequency for each packet are included in the overall summary for each individual device.  Devices are identified by a key string composed from information from the JSON records.  The identifier has the form `model/channel/id`, where the individual components are the values taken from the JSON record.
 
-* count of samples,
+The observed devices, as recorded in the JSON file in temporal order, are cataloged in alphabetical order in a summary table along with a count of the number of packets and de-duplicated transmissions seen for that device and with basic statistics:
+
 * mean, 
 * std deviation, 
 * min value seen, and 
@@ -85,33 +98,25 @@ If you've configured `logrotate` to compress and archive your `rtl_433` log file
 for these device characteristics:
 
 * signal-to-noise ratio over all packets (SNR),
-* inter-transmission gap times (ITGT): the time between successive transmissions by that device,
 * radio frequency of transmissions (Freq) over all packets from that device,
+* inter-transmission gap times (ITGT): the time in seconds between successive transmissions by that device, and
 * the number of packets per transmission (PPT).
 
 >[!NOTE]
 >The frequency reported is that associated with the JSON field "freq".  For devices that report more than one frequency, the field labeled "freq1" is used.
 
-A command-line option allows the de-selection of any or all of these statistics reports (default is to report all four).
+A command-line option allows the de-selection of any or all of these characteristics (default is to report all four).
 
-A device "transmission" represents one observation but may contain 1 to 6 or more "packets", and transmissions are frequently initiated by remote sensor devices at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.
+A device "transmission" represents one observation but may contain 1 to 6 or more "packets".  Transmissions are frequently initiated by remote sensor devices at approximately 15-second, 30-second, or 60-second intervals.  These are simplex communication devices -- the remote device sends data and receives no acknowledgement from the receiver that it has received the data.  In high-traffic neighborhoods, the signals from the various devices may interfere with each other.  Sending redundant packets increases the probability that a receiving device will successfully receive at least one packet in the transmission.  `rtl_433_stats` builds a catalog of devices as it processes the file; it updates statistics for SNR and frequency as it processes individual packets; and it groups packets into individual transmissions based on the time between packets (default is 2 sec for receipt of all packets for an individual transmission) and updates transmission statistics.
 
-`rtl_433_stats` assumes that packets from the same device within a default setting of 2 seconds of each other were repeated for reliability and represent one transmission.  Override that 2-second window with the `-w n` option. 
-
-SNR and frequency data are averaged over all packets; transmission gap times and packets per transmission are averaged over transmissions (grouped packets).
-
-The key string for cataloging a device and labeling device in the report lines is the concatenation of the JSON 'model'/'channel'/'id' fields from the received data record.
-
-`rtl_433_stats` tracks packet times _per device_ so that data for transmissions from different devices are separated and tranmission statistics for individual devices are more reliable in high-traffic areas.
-
-While processing the JSON log files, `rtl_433_stats` monitors the "battery_ok" and "status" flags for each device (if present in the packets) and prints an alert that there has been a change in condition in the remote device.  Generally a 1-->0 change in "battery_ok" indicates a low voltage on the battery and suggests that the battery should be changed.  The values of "status" vary by device and are generally not well documented, but the program notes them for you in case further investigation is justified.
+While processing the JSON log files, `rtl_433_stats` monitors the "battery\_ok" and "status" flags for each device (if present in the packets) and prints an alert that there has been a change in condition in the remote device.  Generally a 1-->0 change in "battery_ok" indicates a low voltage on the battery and suggests that the battery should be changed.  The values of "status" vary by device and are generally not well documented, but the program notes them for you in case further investigation is justified.
 
 ## Installation
-1. Use git to clone the distribution from Github, [https://github.com/hdtodd/rtl\_433\_stats](https://github.com/hdtodd/rtl_433_stats)  
+1. Use git to clone the distribution from Github, clone [https://github.com/hdtodd/rtl\_433\_stats](https://github.com/hdtodd/rtl_433_stats)
 2. Connect to the download directory
-3. Type `python3 rtl_433_stats -i xaa.json` and compare its output with the file `xaa-output.rpt` to ensure that it is functioning correctly.
+3. Type `./rtl_433_stats -i xaa.json` and compare its output with the file `xaa-output.rpt` to ensure that it is functioning correctly.
 
-After verifying that `rtl_433_stats`is functioning correctly with test data, you may want to configure your `rtl_433` config file to record data from your own RTL_SDR dongle.  For example, add something like the following to your `rtl_433.conf` file:
+After verifying that `./rtl_433_stats`is functioning correctly with test data, you may want to configure your `rtl_433` config file to record data from your own RTL_SDR dongle.  For example, add something like the following to your `rtl_433.conf` file:
 ```
 output json:/var/log/rtl_433/rtl_433.json
 ```
@@ -128,16 +133,17 @@ The `tools` directory contains two Python scripts that may be useful for extract
 *  `rtl_xtract_json` extracts from a JSON log file all records for one or more specific devices into a separate file.  Devices are identified by the "model/channel/id" keyword identifier in the `rtl_433_stats` report.
 *  `rtl_json_csv` extracts from a JSON log file and into CSV format the values of fields specified on the command line.  The output is labeled with the "model/channel/id" identifier.  A header line identifying the extracted fields prefaces the data to allow easy importing into spreadsheet programs.
 
-A reduced-functionality version of `rtl_433_stats` is available as a c-language version in the directory `c-version` as the program `snr`.  That program analyzes only signal-to-noise ratios and does not have the options for selecting records to be processed, but it may be useful in some circumstances (and is much faster in execution).
+A reduced-functionality version of `rtl_433_stats` is available as a C-language version in the directory `c-version` as the program `snr`.  That program produces the same statistics as the Python version.  It does not have the options for selecting records to be processed but does have the ability to select JSON records by date-time.
 
 ## Release History
 
 | Version | Date    | Changes |
 |---------|---------|---------|
+| V2.3.0  | 2026.06 | Python code:  reorder statistics columns as SNR, freq, ITGT, PPT; eliminate redundant data columns in report; use prior xmit time rather than prior pkt time for de-duping.  C code: complete the statistics by adding columns for frequency, ITGT, and PPT; add noise, de-duping threshhold, and TPMS options; format output to match Python output.  |
 | V2.2.1  | 2026.06 | For devices reporting multiple frequencies that don't present a field labeled "freq", use the value associated with "freq1" as the frequency value. |
-| V2.2.0    | 2024.08 | Add support for both ISO and Unix Epoch time stamps in the JSON log file |
-| V2.1      | 2023.04 | Complete documentation and full version |
-| V1.0      | 2022.05 | First operational version. |
+| V2.2.0  | 2024.08 | Add support for both ISO and Unix Epoch time stamps in the JSON log file |
+| V2.1    | 2023.04 | Complete documentation and full version |
+| V1.0    | 2022.05 | First operational version. |
 
 
 ## Author

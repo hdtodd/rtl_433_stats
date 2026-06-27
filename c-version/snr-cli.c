@@ -16,11 +16,16 @@
 #include <unistd.h>
 
 extern time_t dFirst, dLast;
+extern int thresh;
+extern int noise;
+extern bool TPMS
+;
+extern char* version;
 extern char inFileName[60];
 
 int processCmdLine(int argc, char* argv[]) {
   int c, i, j;
-  const char* short_opt = "h?:f:s:e:";
+  const char* short_opt = "h?vTi:x:w:s:e:";
   struct tm tm;
 
   struct myOption {
@@ -33,11 +38,15 @@ int processCmdLine(int argc, char* argv[]) {
 
   struct myOption long_opt[] = 
     {  
-      {"help",       optional_argument, NULL, 'h', "This help message"},
-      {"file",       required_argument, NULL, 'f', "-f <path>: source data file to process"},
-      {"start",      required_argument, NULL, 's', "-s <date>: date-time of first record to process, in form YYYY-MM-DD HH:MM:SS"},
-      {"end",        required_argument, NULL, 'e', "-e <date>: date-time of last record to process, in form YYYY-MM-DD HH:MM:SS"},
-      {NULL,         0,                 NULL,  0,  NULL }
+      {"help",          optional_argument, NULL, 'h', "Print this help message and exit"},
+      {"version",       optional_argument, NULL, 'v', "Print version number and exit"},
+      {"input",         required_argument, NULL, 'i', "-i <path>: source data file to process"},
+      {"exclude_noise", required_argument, NULL, 'x', "-x <minimum # of packets for device to be reported (default: 1)>"},
+      {"xmt_window",    required_argument, NULL, 'w', "-w <maximum time in sec for a packet group to be considered one transmission (default: 2)>"},
+      {"include_TPMS",  optional_argument, NULL, 'T', "Include tire pressure monitors in the catalog (default: exclude)"},
+      {"start",         required_argument, NULL, 's', "-s <date>: date-time of first record to process, in form YYYY-MM-DD HH:MM:SS"},
+      {"end",           required_argument, NULL, 'e', "-e <date>: date-time of last record to process, in form YYYY-MM-DD HH:MM:SS"},
+      {NULL,            0,                 NULL,  0,  NULL }
     };
 
   // validate arguments and/or provide help
@@ -55,20 +64,46 @@ int processCmdLine(int argc, char* argv[]) {
       case 0:        /* long options toggles */
 	break;
 
-    case 'f':
-      if (strlen(optarg)<(sizeof(inFileName)-1)) {
-	strcpy(inFileName, optarg);
-	if (access(inFileName,R_OK) !=0) {
-	  printf("Specified input file '%s' not found or not readable\n", inFileName);
-	  return(-1);
-	}
-      } else {
-	printf("Input data file name '%s' exceeds allocated storage\n", inFileName);
-	return(-1);
+      case '?':
+      case 'h':
+	printf("SNR: Program to analyze device characteristics from rtl_433 packet logs\n");
+	printf("     Usage: %s [OPTIONS]\n", argv[0]);
+	printf("     [OPTIONS] are any combination of\n\tLong form       Short\tOption invoked\n");
+	for (i=0; long_opt[i].name!=NULL; i++) {
+	  printf("\t--%-14s-%c\t%s\n", long_opt[i].name, long_opt[i].val, long_opt[i].desc);
 	};
-      break;
+        exit(0);
+
+      case 'v':
+	printf("SNR version %s \n", version);
+	exit(0);
+	
+      case 'i':
+	if (strlen(optarg)<(sizeof(inFileName)-1)) {
+	  strcpy(inFileName, optarg);
+	  if (access(inFileName,R_OK) !=0) {
+	    printf("Specified input file '%s' not found or not readable\n", inFileName);
+	    return(-1);
+	  }
+	} else {
+	  printf("Input data file name '%s' exceeds allocated storage\n", inFileName);
+	  return(-1);
+	  };
+	break;
       
-      case 's':
+    case 'x':
+        noise = atoi(optarg);
+	break;
+
+    case 'w':
+        thresh = atoi(optarg);
+        break;
+
+    case 'T':
+        TPMS = true;
+        break;
+
+    case 's':
 	memset(&tm, 0, sizeof(struct tm));
 	strptime(optarg, "%Y-%m-%d %H:%M:%S", &tm);
 	tm.tm_isdst = 1;
@@ -81,16 +116,6 @@ int processCmdLine(int argc, char* argv[]) {
 	tm.tm_isdst = 1;
 	dLast = mktime(&tm);
 	break;
-
-      case '?':
-      case 'h':
-	printf("SNR:  Program to analyze rtl_433 packet logs for SNR performance\n");
-	printf("     Usage: %s [OPTIONS]\n", argv[0]);
-	printf("     [OPTIONS] are any combination of\n\tLong form       Short\tOption invoked\n");
-	for (i=0; long_opt[i].name!=NULL; i++) {
-	  printf("\t--%-14s-%c\t%s\n", long_opt[i].name, long_opt[i].val, long_opt[i].desc);
-	};
-        return(-1);
 
       default:
 	fprintf(stderr, "%s: invalid option -- %c\n", argv[0], c);
